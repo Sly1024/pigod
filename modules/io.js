@@ -1,13 +1,13 @@
 (function (exports) {
 
+    exports.tagFile = 'io.html';
+
     exports.init = function init(api) {
         api.registerDataStream('iotop', 
             api.createProcessStream('iotop', 'iotop', ['-bod2'], processData)
         );
     }
     
-    exports.tagFile = 'io.tag';
-
     var units = { 'B/s': 1, 'K/s': 1000, 'M/s': 1000000 };
     var collected = '';
     var beginRE = /^\s*Total DISK READ/;

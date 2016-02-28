@@ -1,6 +1,6 @@
 (function (exports) {
 
-    exports.tagFile = 'net.tag';
+    exports.tagFile = 'net.html';
 
     exports.init = function init(api) {
         api.registerDataStream('nettop', 

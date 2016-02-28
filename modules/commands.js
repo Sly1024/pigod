@@ -1,4 +1,7 @@
 (function (exports) {
+
+    exports.tagFile = 'commands.html';
+
     exports.init = function init(api) {
         var child_process = require('child_process');
         var commandsById = {};
@@ -23,6 +26,5 @@
         });
     }
 
-    exports.tagFile = 'commands.tag';
     
 })(exports);

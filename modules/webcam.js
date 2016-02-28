@@ -1,5 +1,7 @@
 (function (exports) {
 
+    exports.tagFile = 'webcam.html';
+
     exports.init = function init(api) {
         var child_process = require('child_process');
         var childPID;
@@ -27,6 +29,4 @@
         });
     }
     
-    exports.tagFile = 'webcam.tag';
-
 })(exports);

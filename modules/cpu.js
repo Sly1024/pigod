@@ -1,6 +1,6 @@
 (function (exports) {
 
-    exports.tagFile = 'cpu.tag';
+    exports.tagFile = 'cpu.html';
     
     exports.init = function init(api) {
         var child_process = require('child_process');
