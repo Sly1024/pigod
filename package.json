@@ -1,0 +1,21 @@
+{
+  "name": "pigod",
+  "version": "0.1.0",
+  "description": "A monitoring and controlling tool for the Raspberry Pi built with node.js/express.",
+  "license": "MIT",
+  "dependencies": {
+    "basic-auth-connect": "1.0.0",
+    "bootstrap": "^3.3.4",
+    "express": "^4.12.4",
+    "riot": "^2.3.12",
+    "jquery": "^2.1.4",
+    "smoothie": "^1.27.0",
+    "ws": "^1.0.0"
+  },
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "szilveszter.safar@gmail.com"
+}

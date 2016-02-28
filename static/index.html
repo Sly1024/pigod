@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/icon" href="https://www.raspberrypi.org/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/modules/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/modules/bootstrap/dist/css/bootstrap-theme.min.css" />
+    <script type="text/javascript">
+        window.onerror = function(msg, url, line, col, error) {
+           // Note that col & error are new to the HTML 5 spec and may not be 
+           // supported in every browser.  It worked for me in Chrome.
+           var extra = !col ? '' : '\ncolumn: ' + col;
+           extra += !error ? '' : '\nerror: ' + error;
+
+           // You can view the information in an alert to see things working like this:
+           alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
+
+           var suppressErrorAlert = false;
+           // If you return true, then error alerts (like in older versions of 
+           // Internet Explorer) will be suppressed.
+           return suppressErrorAlert;
+        };
+    </script>
+    <script type="text/javascript" src="/modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    
+    <script type="text/javascript" src="sortable.js"></script>
+    <script type="text/javascript" src="/modules/smoothie/smoothie.js"></script>
+    
+    <script type="text/javascript" src="observable.js"></script>
+    <script type="text/javascript" src="wsPubSubClient.js"></script>
+    
+    <script type="text/javascript" src="/modules/riot/riot.min.js"></script>
+    <script type="text/javascript" src="/riot-tags.js"></script>
+    
+    <title>PiGod</title>
+    <style type="text/css">
+        .infopanel {
+            width: 500px;
+            display: inline-block;
+        }
+        .toggle {
+            cursor: pointer;
+        }
+        .table-sparse {
+            border-spacing: 5px;
+            border-collapse: separate;
+        }
+        .pipanel {
+            display: inline-block;
+            vertical-align: top;
+        }
+        .smoothchart {
+            vertical-align: top;
+        }
+        td .truncate {
+            width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rpi_reference {
+            float: right;
+            margin: 5px;
+        }
+    </style>
+    <script type="text/javascript">
+        var pubsub = new pigod.wsPubSubClient(location.host);
+
+        var isRunning = false;
+        var modules = [];
+        
+        function init() {
+            $('#stopbtn').click(startStop);
+
+            pubsub.on('subscribe', update_subscription_count);
+            pubsub.on('unsubscribe', update_subscription_count);
+            
+            modules = riot.mount('*', { pubsub: pubsub });
+            $('#stopbtn').click();
+            
+            Sortable.create($('#accordion')[0], {
+                handle: '.panel-heading',
+                animation: 150
+            });
+            
+            var cpu_panel = modules.filter(function (m) { return m.root.tagName === 'CPU-PANEL'; })[0];
+            cpu_panel.on('update', function () {
+                document.title = cpu_panel.cpu_perc + '% (' + cpu_panel.cpu_temp + '\u2103) - PiGod';
+            });
+        }
+        
+        function update_subscription_count(channel, list) {
+            $('#subs_cnt').text(list.length);
+        }
+        
+        function startStop() {
+            if (isRunning) {
+                modules.forEach(function (m) { m.stop(); });
+                isRunning = false;
+            } else {
+                modules.forEach(function (m) { m.start(); });
+                isRunning = true;
+            }
+            this.innerHTML = isRunning ? 'Stop' : 'Start';
+        }
+        
+        function stretchCanvas(canv) {
+            if (canv.width != canv.parentNode.offsetWidth) canv.width = canv.parentNode.offsetWidth;
+        }
+        
+        function addTooltipToChart(chart, ttipFn) {
+            var jcanv = $(chart.canvas);
+            jcanv.mouseout(function () { jcanv.prop('title', ''); });
+            
+            jcanv.mousemove(function (event) {
+                var xpx = event.offsetX - jcanv.width();
+                var xt = Date.now() + xpx * chart.options.millisPerPixel;
+                
+                //chart.seriesSet[i].timeSeries.data[j][0..1]
+                var values = chart.seriesSet.map(function (series) {
+                    var data = series && series.timeSeries && series.timeSeries.data;
+                    if (!data) return null;
+                    var i = 0;
+                    while (i < data.length && data[i][0] < xt) ++i;
+                    i--;
+                    return i >= 0 && i < data.length ? data[i][1] : null;
+                });
+                jcanv.prop('title', ttipFn(xt, values));
+            });        
+        }
+    </script>
+    
+  </head>
+  <body onload="init()">
+      Receiving <span id="subs_cnt">0</span> data streams. <button class="btn btn-primary" id="stopbtn">??</button>
+      <div class="rpi_reference">
+        Powered by <a href="https://www.raspberrypi.org/">Raspberry Pi</a>
+        <img src="https://www.raspberrypi.org/favicon.ico"></img>
+      </div>
+    <div class="panel-group" id="accordion">
+      <diskfree-panel class="pipanel"></diskfree-panel>
+      <cpu-panel class="pipanel"></cpu-panel>
+      <io-panel class="pipanel"></io-panel>
+      <net-panel class="pipanel"></net-panel>
+      <!-- <webcam-panel class="pipanel"></webcam-panel> -->
+      <commands-panel class="pipanel"></commands-panel>
+      <services-panel class="pipanel"></services-panel>
+    </div>
+
+  </body>
+</html>
