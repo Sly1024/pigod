@@ -71,6 +71,10 @@ Modules
 -------
 See [docs/modules](docs/modules.md).
 
+Architecture
+------------
+See [docs/architecture](docs/architecture.md).
+
 Background
 ----------
 See [docs/background](docs/background.md).
