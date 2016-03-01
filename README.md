@@ -69,8 +69,11 @@ Uninstalling the service:
 
 Modules
 -------
-See [modules](docs/modules.md).
+See [docs/modules](docs/modules.md).
 
+Background
+----------
+See [docs/background](docs/background.md).
 
 TODOs
 -----
