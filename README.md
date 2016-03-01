@@ -78,7 +78,8 @@ See [docs/background](docs/background.md).
 TODOs
 -----
 I don't know where to start...  this is not in priority order!
- * [ ] Build (concatenate + minify) all client-side libs into a single file.
+ * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
+ * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
  * [ ] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client.
  * [ ] Add crosshair on mouseover to smoothie charts.
