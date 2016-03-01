@@ -1,12 +1,12 @@
 # Modules
 
+The server tries to load each *.js file from the `modules` folder with require(). Modules must export an `init` function and an optional `tagFile` string containing the name of a [riot.js](http://riotjs.com/) tag file.
+
 ##How they work
 Most of the "streaming" modules just run a shell command and capture, process and publish the standard output to a *wsPubSub* object that forwards the data through a WebSocket channel to the client. On the client each module can subscribe to one or more "channels".
 The first subscription starts the process so even if there are many clients connected, there will be only one process running for each stream.
 
 I know that running a command and parsing its output is not very efficient, and I could get all the data by reading from the `/proc` filesystem, but me being a mostly UI developer I started with the easy part and worked on the client side. Maybe in phase 2 of learning linux I'll change it to a "proper" implementation.
-
-The server tries to load each *.js file from the `modules` folder with require(). Modules must export an `init` function and an optional `tagFile` string containing the name of a [riot.js](http://riotjs.com/) tag file.
 
 ## CPU Module
  * Server module: [cpu.js](../modules/cpu.js)
