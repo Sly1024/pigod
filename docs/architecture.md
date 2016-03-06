@@ -39,5 +39,5 @@ But *Current State* or *State of the World* (however you call it) is to the resc
 
 In a pub-sub system when a client subscribes at a specific time (too late) it doesn't get the messages that were sent *before* the subscription. To solve this, the server can store the messages in a buffer and send the *Current State* (all messages up till now) to a client when it subscribes, so it has the same "state" as any other client subscribed before.
 
-Implementing this feature would not only solve the issue I mentioned above, but it would allow me to do performance optimisations more easily (see [issue#1](/Sly1024/pigod/issues/1)). If the "state" is an object/array that changes infrequently then I could send *delta updates* somehow encoding what changed and not the (same) full object every time. When a new client connects, it will need the full "state" at first, then I can switch to delta updates.
+Implementing this feature would not only solve the issue I mentioned above, but it would allow me to do performance optimisations more easily (see [issue#1](https://github.com/Sly1024/pigod/issues/1)). If the "state" is an object/array that changes infrequently then I could send *delta updates* somehow encoding what changed and not the (same) full object every time. When a new client connects, it will need the full "state" at first, then I can switch to delta updates.
 

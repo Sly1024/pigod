@@ -67,17 +67,17 @@ Uninstalling the service:
 
 ```forever-service delete pigodsvc```
 
-Modules
--------
-See [docs/modules](docs/modules.md).
+Background
+----------
+See [docs/background](docs/background.md).
 
 Architecture
 ------------
 See [docs/architecture](docs/architecture.md).
 
-Background
-----------
-See [docs/background](docs/background.md).
+Modules
+-------
+See [docs/modules](docs/modules.md).
 
 TODOs
 -----
