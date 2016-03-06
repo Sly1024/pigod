@@ -88,7 +88,7 @@ I don't know where to start...  this is not in priority order!
  * [ ] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client.
  * [ ] Add crosshair on mouseover to smoothie charts.
  * [ ] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
- * [ ] Get rid of jQuery - it's too heavy, I only use a small portion; I like micro libraries more.
+ * [x] Get rid of jQuery - it's too heavy, I only use a small portion; I like micro libraries more.
  * [ ] Add ability to manage individual modules on the client - start/stop stream(s), add/remove module.
  * [ ] Persist UI layout.
  * [ ] Documentation
