@@ -23,9 +23,7 @@
            return suppressErrorAlert;
         };
     </script>
-    <script type="text/javascript" src="/modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="/modules/bootstrap/dist/js/bootstrap.min.js"></script>
-    
+
     <script type="text/javascript" src="sortable.js"></script>
     <script type="text/javascript" src="/modules/smoothie/smoothie.js"></script>
     
@@ -67,21 +65,24 @@
         }
     </style>
     <script type="text/javascript">
+    
+        function $el(selector) { return document.querySelector(selector); }
+    
         var pubsub = new pigod.wsPubSubClient(location.host);
 
         var isRunning = false;
         var modules = [];
         
         function init() {
-            $('#stopbtn').click(startStop);
+            $el('#stopbtn').addEventListener('click', startStop);
 
             pubsub.on('subscribe', update_subscription_count);
             pubsub.on('unsubscribe', update_subscription_count);
             
             modules = riot.mount('*', { pubsub: pubsub });
-            $('#stopbtn').click();
+            startStop.call($el('#stopbtn'));
             
-            Sortable.create($('#accordion')[0], {
+            Sortable.create($el('#accordion'), {
                 handle: '.panel-heading',
                 animation: 150
             });
@@ -93,7 +94,7 @@
         }
         
         function update_subscription_count(channel, list) {
-            $('#subs_cnt').text(list.length);
+            $el('#subs_cnt').innerHTML = ''+list.length;
         }
         
         function startStop() {
@@ -112,7 +113,8 @@
         }
         
         function addTooltipToChart(chart, ttipFn) {
-            var jcanv = $(chart.canvas);
+        /*
+            var jcanv = $el(chart.canvas);
             jcanv.mouseout(function () { jcanv.prop('title', ''); });
             
             jcanv.mousemove(function (event) {
@@ -129,7 +131,8 @@
                     return i >= 0 && i < data.length ? data[i][1] : null;
                 });
                 jcanv.prop('title', ttipFn(xt, values));
-            });        
+            });     
+        */
         }
     </script>
     
@@ -142,10 +145,10 @@
       </div>
     <div class="panel-group" id="accordion">
       <diskfree-panel class="pipanel"></diskfree-panel>
+      <!--<webcam-panel class="pipanel"></webcam-panel>-->
       <cpu-panel class="pipanel"></cpu-panel>
       <io-panel class="pipanel"></io-panel>
       <net-panel class="pipanel"></net-panel>
-      <!-- <webcam-panel class="pipanel"></webcam-panel> -->
       <commands-panel class="pipanel"></commands-panel>
       <services-panel class="pipanel"></services-panel>
     </div>

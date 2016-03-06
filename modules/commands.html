@@ -1,11 +1,11 @@
 <commands-panel>
     <div class="panel panel-default infopanel">
-        <div class="panel-heading toggle" data-toggle="collapse" data-target="#cmdsPanelCollapse">
+        <div class="panel-heading">
             <span class="panel-title">
                 Commands
             </span>
         </div>
-        <div id="cmdsPanelCollapse" class="panel-collapse collapse in">
+        <div>
           <div class="panel-body">
             <table class="sortable table-striped table-sparse commands-table" data-show-columns="true">
                 <thead>
@@ -17,8 +17,8 @@
                 </thead>
                     <tbody>
                         <tr each={commands}>
-                            <td nowrap class="cmds-name">{name}</td>
-                            <td title="{command}"><div class="cmds-truncate">{command}</div></td>
+                            <td nowrap class="name">{name}</td>
+                            <td title="{command}"><div class="truncate">{command}</div></td>
                             <td><button onclick={parent.execClick}>Exec</button></td>
                         </tr>
                     </tbody>
@@ -27,14 +27,14 @@
         </div>
     </div>
     
-    <style type="text/css">
-        .cmds-truncate {
+    <style scoped>
+        .truncate {
             width: 275px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .cmds-name {
+        .name {
             font-weight: bold;
         }
     </style>

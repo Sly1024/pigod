@@ -1,6 +1,6 @@
 <net-panel>
     <div class="panel panel-default infopanel">
-        <div class="panel-heading toggle" data-toggle="collapse" data-target="#netPanelCollapse">
+        <div class="panel-heading">
             <span class="panel-title">
                 Network (<span class="net_read">receive</span>/<span class="net_write">send</span>) &nbsp;
                 <span class="pull-right">
@@ -8,8 +8,8 @@
                 </span>
             </span>
         </div>
-        <div id="netPanelCollapse" class="panel-collapse collapse in">
-          <canvas id="net-io-chart" width="420" height="90" class="smoothchart"></canvas>
+        <div>
+          <canvas name="net-io-chart" width="420" height="90" class="smoothchart"></canvas>
           <div class="panel-body">
             <table class="table-striped table-sparse" data-show-columns="true">
                 <thead>
@@ -37,7 +37,7 @@
         </div>
     </div>
     
-    <style type="text/css">
+    <style scoped>
         td.pid_col {
             min-width: 45px;
         }
@@ -86,7 +86,7 @@
                 },
                 timestampFormatter:SmoothieChart.timeFormatter
             });
-            canvas = document.getElementById('net-io-chart');
+            canvas = this.root.querySelector('canvas[name=net-io-chart]');
 
             chart.addTimeSeries(readSeries, { lineWidth:1.2, strokeStyle:'#3e6f5a', fillStyle:'rgba(62,111,90, 0.15)' });
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });

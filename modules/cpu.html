@@ -1,6 +1,6 @@
 <cpu-panel>
     <div class="panel panel-default infopanel">
-        <div class="panel-heading toggle" data-toggle="collapse" data-target="#cpuPanelCollapse">
+        <div class="panel-heading">
             <span class="panel-title">
                 CPU: <span class="cpu-percent">{ cpu_perc }%</span> <span class="temperature">{ cpu_temp }&deg;C</span> <span class="voltage">{ cpu_volt }V</span>&nbsp;
                 <span>{ uptime }</span>&nbsp;
@@ -9,9 +9,8 @@
                 </span>
             </span>
         </div>
-        <div id="cpuPanelCollapse" class="panel-collapse collapse in">
-          <canvas id="cpu-usage-chart" width="420" height="45" class="smoothchart"></canvas>
-          <canvas id="cpu-temp-chart" width="420" height="45" class="smoothchart"></canvas>
+        <canvas name="cpu-usage-chart" width="420" height="45" class="smoothchart"></canvas>
+        <canvas name="cpu-temp-chart" width="420" height="45" class="smoothchart"></canvas>
           <div class="panel-body">
             <table class="sortable table-striped table-sparse" data-show-columns="true">
                 <thead>
@@ -38,10 +37,9 @@
                     </tbody>
             </table>
           </div>
-        </div>
     </div>
     
-    <style type="text/css">
+    <style scoped>
         td.command_col {
             min-width: 150px;
         }
@@ -111,22 +109,22 @@
             timestampFormatter:SmoothieChart.timeFormatter
         };
         
-        function setupChart(canvas_id, series, chartConfig, seriesStyles) {
-            var canvas = $(canvas_id)[0];
-            var chart = new SmoothieChart($.extend(chartConfig, defaultChartConfig));
+        function setupChart(canvas, series, chartConfig, seriesStyles) {
+            var chart = new SmoothieChart(Object.assign(chartConfig, defaultChartConfig));
             chart.addTimeSeries(series, seriesStyles);
             chart.streamTo(canvas, 500);
-            return canvas;
         }
         
         this.on('mount', () => {
-            usage_canvas = setupChart('#cpu-usage-chart', cpuSeries, {
+            usage_canvas = this.root.querySelector('canvas[name=cpu-usage-chart]');
+            setupChart(usage_canvas, cpuSeries, {
                 minValue: 0,
                 yMinFormatter: () => '',
                 yMaxFormatter: (max, prec) => parseFloat(cpuSeries.maxValue).toFixed(prec) + '%',
             }, { lineWidth:1.2, strokeStyle:'#3DFFA8', fillStyle:'rgba(179,254,165,0.36)' });
             
-            temp_canvas = setupChart('#cpu-temp-chart', tempSeries, {
+            temp_canvas = this.root.querySelector('canvas[name=cpu-temp-chart]');
+            setupChart(temp_canvas, tempSeries, {
                 minValueScale:1.05,
                 yMinFormatter: (min, prec) => parseFloat(tempSeries.minValue).toFixed(prec) + '\u00b0C',
                 yMaxFormatter: (max, prec) => parseFloat(tempSeries.maxValue).toFixed(prec) + '\u00b0C',

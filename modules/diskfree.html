@@ -7,7 +7,7 @@
         </div>
         <div id="dfPanelCollapse" class="panel-collapse collapse in">
           <div class="panel-body limit-height">
-            <table class="sortable table-striped table-sparse diskfree" data-show-columns="true">
+            <table class="sortable table-striped table-sparse" data-show-columns="true">
                 <thead>
                     <tr>
                         <th each={ col in columns } class={ highlight: parent.sortedBy == col.key }>
@@ -28,7 +28,7 @@
         </div>
     </div>
     
-    <style type="text/css">
+    <style scoped>
         .limit-height {
             max-height: 200px;
             overflow: auto;
@@ -36,10 +36,10 @@
         .highlight > a {
             color: #00BCD4;
         }
-        .diskfree td {
+        td {
             position: relative;
         }
-        .diskfree tr {
+        tr {
             opacity: 0.999;
         }
         .column-Use .use-bar {
@@ -48,7 +48,7 @@
             top: 0;
             bottom: 0;
             left: 0;
-            z-index: -1;
+            z-index: 1;
         }
         .column-Use {
             text-align: right;
