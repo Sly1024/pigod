@@ -1,31 +1,35 @@
 (function (exports) {
 
+	var riot = require('riot');
     var WebSocketServer = require('ws').Server;
-    var Observable = require('./static/observable.js').Observable;
 
     function wsPubSubServer(server) {
-        Observable.call(this);
+        riot.observable(this);
         
-        this.subs = new Observable();
+        this.subs = riot.observable();
         this.start(server);
     }
 
     (function (proto) {
 
         proto.subscribe = function(channel, handler) {
-            if (this.subs.on(channel, handler) === 1) {
-                this.fire('startChannel', [channel]);
+			this.subs.on(channel, handler);
+            if (!this.subs[channel]) {
+				this.subs[channel] = 0;
+                this.trigger('startChannel', channel);
             }
+			this.subs[channel]++;
         };
         
         proto.unsubscribe = function(channel, handler) {
-            if (this.subs.off(channel, handler) === 0) {
-                this.fire('stopChannel', [channel]);
+			this.subs.off(channel, handler);
+            if (--this.subs[channel] === 0) {
+                this.trigger('stopChannel', channel);
             }
         };
         
         proto.publish = function(channel, data, targetWs, sourceWs) {
-            this.subs.fire(channel, [data, targetWs, sourceWs]);
+            this.subs.trigger(channel, data, targetWs, sourceWs);
         };
         
         proto.start = function (server) {
@@ -79,8 +83,7 @@
             handlers[channel] = null;
         };
         
-        proto.constructor = wsPubSubServer;
-    })(wsPubSubServer.prototype = Object.create(Observable.prototype));
+    })(wsPubSubServer.prototype);
     
     exports.wsPubSubServer = wsPubSubServer;
 

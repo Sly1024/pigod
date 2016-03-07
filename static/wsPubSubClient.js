@@ -1,10 +1,8 @@
 (function (exports) {
 
-    var Observable = pigod.Observable;
-
     function wsPubSubClient(hostPort) {
-        Observable.call(this);
-        this.subs = new Observable();
+        riot.observable(this);
+        this.subs = riot.observable();
         this.wsQ = [];
         this.subscribedChannels = [];
         this.connect(hostPort);
@@ -13,26 +11,30 @@
     (function (proto) {
 
         proto.subscribe = function(channel, handler) {
-            if (this.subs.on(channel, handler) === 1) {
+			this.subs.on(channel, handler);
+			 if (!this.subs[channel]) {
+				this.subs[channel] = 0;
                 this.send({ action: 'subscribe', channel: channel } );
                 this.subscribedChannels.push(channel);
-                this.fire('subscribe', [channel, this.subscribedChannels]);
+                this.trigger('subscribe', channel, this.subscribedChannels);
             }
+			this.subs[channel]++;
         };
         
         proto.unsubscribe = function(channel, handler) {
-            if (this.subs.off(channel, handler) === 0) {
+			this.subs.off(channel, handler);
+			if (--this.subs[channel] === 0) {
                 this.send({ action: 'unsubscribe', channel: channel } );
                 
                 var idx = this.subscribedChannels.indexOf(channel);
                 if (idx >= 0) this.subscribedChannels.splice(idx, 1);
                 
-                this.fire('unsubscribe', [channel, this.subscribedChannels]);
+                this.trigger('unsubscribe', channel, this.subscribedChannels);
             }
         };
         
         proto.publish = function(channel, data) {
-            this.subs.fire(channel, [data]);
+            this.subs.trigger(channel, data);
             this.send({ action: 'publish', channel: channel, payload: data });
         };
         
@@ -52,7 +54,7 @@
                 var data = JSON.parse(msg.data);
                 if (data.action === 'publish') {
                     if (data.channel && data.payload) {
-                        me.subs.fire(data.channel, [data.payload]);
+                        me.subs.trigger(data.channel, data.payload);
                     } else {
                         throw new Error('[wsPubSubClient] unidentified msg ' + msg);
                     }
@@ -68,8 +70,8 @@
             if (ws.readyState === 1) ws.send(str); else this.wsQ.push(str);
         };
         
-    })(wsPubSubClient.prototype = Object.create(Observable.prototype));
+    })(wsPubSubClient.prototype);
     
     exports.wsPubSubClient = wsPubSubClient;
     
-})(typeof exports === 'object' ? exports : this.pigod);
+})(typeof exports === 'object' ? exports : (this.pigod || (this.pigod = {})));
