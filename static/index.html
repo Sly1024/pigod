@@ -28,16 +28,13 @@
     <script type="text/javascript" src="/modules/smoothie/smoothie.js"></script>
     
     <script type="text/javascript" src="/modules/riot/riot.js"></script>
+    <script type="text/javascript" src="pubsub.js"></script>
     <script type="text/javascript" src="wsPubSubClient.js"></script>
     
     <script type="text/javascript" src="/riot-tags.js"></script>
     
     <title>PiGod</title>
     <style type="text/css">
-        .infopanel {
-            width: 500px;
-            display: inline-block;
-        }
         .toggle {
             cursor: pointer;
         }
@@ -62,12 +59,14 @@
             float: right;
             margin: 5px;
         }
+
     </style>
     <script type="text/javascript">
     
         function $el(selector) { return document.querySelector(selector); }
     
-        var pubsub = new pigod.wsPubSubClient(location.host);
+        var pubsub = new pigod.pubsub();
+		var wsclient = new pigod.wsPubSubClient(location.host, pubsub);
 
         var isRunning = false;
         var modules = [];
@@ -108,7 +107,7 @@
         }
         
         function stretchCanvas(canv) {
-            if (canv.width != canv.parentNode.offsetWidth) canv.width = canv.parentNode.offsetWidth;
+            if (canv.width != canv.parentNode.clientWidth) canv.width = canv.parentNode.clientWidth;
         }
         
         function addTooltipToChart(chart, ttipFn) {

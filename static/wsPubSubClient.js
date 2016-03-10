@@ -1,41 +1,26 @@
 (function (exports) {
 
-    function wsPubSubClient(hostPort) {
-        riot.observable(this);
-        this.subs = riot.observable();
+    function wsPubSubClient(hostPort, pubsub) {
+		this.pubsub = pubsub;
+		pubsub.on('startChannel', this.startChannel.bind(this));
+		pubsub.on('stopChannel', this.stopChannel.bind(this));
+		pubsub.on('publish', this.publish.bind(this));
         this.wsQ = [];
-        this.subscribedChannels = [];
         this.connect(hostPort);
     }
 
     (function (proto) {
 
-        proto.subscribe = function(channel, handler) {
-			this.subs.on(channel, handler);
-			 if (!this.subs[channel]) {
-				this.subs[channel] = 0;
-                this.send({ action: 'subscribe', channel: channel } );
-                this.subscribedChannels.push(channel);
-                this.trigger('subscribe', channel, this.subscribedChannels);
-            }
-			this.subs[channel]++;
+        proto.startChannel = function(channel) {
+			this.send({ action: 'subscribe', channel: channel } );
         };
         
-        proto.unsubscribe = function(channel, handler) {
-			this.subs.off(channel, handler);
-			if (--this.subs[channel] === 0) {
-                this.send({ action: 'unsubscribe', channel: channel } );
-                
-                var idx = this.subscribedChannels.indexOf(channel);
-                if (idx >= 0) this.subscribedChannels.splice(idx, 1);
-                
-                this.trigger('unsubscribe', channel, this.subscribedChannels);
-            }
+        proto.stopChannel = function(channel) {
+			this.send({ action: 'unsubscribe', channel: channel } );
         };
         
         proto.publish = function(channel, data) {
-            this.subs.trigger(channel, data);
-            this.send({ action: 'publish', channel: channel, payload: data });
+            if (!this.ignorePublish) this.send({ action: 'publish', channel: channel, payload: data });
         };
         
         proto.connect = function (hostPort) {
@@ -54,7 +39,9 @@
                 var data = JSON.parse(msg.data);
                 if (data.action === 'publish') {
                     if (data.channel && data.payload) {
-                        me.subs.trigger(data.channel, data.payload);
+						me.ignorePublish = true;
+                        me.pubsub.publish(data.channel, data.payload);
+						me.ignorePublish = false;
                     } else {
                         throw new Error('[wsPubSubClient] unidentified msg ' + msg);
                     }
@@ -74,4 +61,6 @@
     
     exports.wsPubSubClient = wsPubSubClient;
     
-})(typeof exports === 'object' ? exports : (this.pigod || (this.pigod = {})));
+})(
+	typeof exports === 'object' ? exports : (this.pigod || (this.pigod = {}))
+);
