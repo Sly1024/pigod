@@ -1,17 +1,17 @@
 <cpu-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                CPU: <span class="cpu-percent">{ cpu_perc }%</span> <span class="temperature">{ cpu_temp }&deg;C</span> <span class="voltage">{ cpu_volt }V</span>&nbsp;
-                <span>{ uptime }</span>&nbsp;
-                <span class="pull-right">
-                    MEM: <span class="free_mem" title="Used">{ used_mem }</span> / <span class="used_mem" title="Free">{ free_mem }</span> MiB
-                </span>
-            </span>
-        </div>
-        <canvas name="usage_chart" width="420" height="45" class="smoothchart"></canvas>
-        <canvas name="temp_chart" width="420" height="45" class="smoothchart"></canvas>
-          <div class="panel-body">
+    <pigod-panel>
+		<yield to="title">
+			CPU: <span class="cpu-percent">{ cpu_perc }%</span> <span class="temperature">{ cpu_temp }&deg;C</span> <span class="voltage">{ cpu_volt }V</span>&nbsp;
+			<span>{ uptime }</span>&nbsp;
+			<span class="pull-right">
+				MEM: <span class="free_mem" title="Used">{ used_mem }</span> / <span class="used_mem" title="Free">{ free_mem }</span> MiB
+			</span>
+		</yield>
+        <yield to="outside-body">
+			<canvas name="usage_chart" width="420" height="45" class="smoothchart"></canvas>
+			<canvas name="temp_chart" width="420" height="45" class="smoothchart"></canvas>
+		</yield>
+        <yield to="body">
             <table class="sortable table-striped table-sparse" data-show-columns="true">
                 <thead>
                     <tr>
@@ -24,20 +24,20 @@
                       <th>Command</th>
                     </tr>
                 </thead>
-                    <tbody>
-                        <tr each={ processes }>
-                            <td>{USER}</td>
-                            <td class="pid_col text-right"><a href="#" onclick={ parent.linkClick }>{PID}</a></td>
-                            <td class="ni_col text-right">{NI}<span class="glyphicon glyphicon-chevron-down faded" onclick={ parent.renice(-1) }></span><span class="glyphicon glyphicon-chevron-up faded" onclick={ parent.renice(+1) }></span></td>
-                            <td class="text-right cpu_col">{CPU}</td>
-                            <td class="text-right">{MEM}</td>
-                            <td class="text-right time_col">{TIME}</td>
-                            <td class="command_col"><div class="truncate">{COMMAND}</div></td>
-                        </tr>
-                    </tbody>
+				<tbody>
+					<tr each={ processes }>
+						<td>{USER}</td>
+						<td class="pid_col text-right"><a href="#" onclick={ parent.linkClick }>{PID}</a></td>
+						<td class="ni_col text-right">{NI}<span class="glyphicon glyphicon-chevron-down faded" onclick={ parent.renice(-1) }></span><span class="glyphicon glyphicon-chevron-up faded" onclick={ parent.renice(+1) }></span></td>
+						<td class="text-right cpu_col">{CPU}</td>
+						<td class="text-right">{MEM}</td>
+						<td class="text-right time_col">{TIME}</td>
+						<td class="command_col"><div class="truncate">{COMMAND}</div></td>
+					</tr>
+				</tbody>
             </table>
-          </div>
-    </div>
+        </yield>
+    </pigod-panel>
     
     <style scoped>
         td.command_col {
@@ -115,13 +115,14 @@
         }
         
         this.on('mount', () => {
-            setupChart(this.usage_chart, cpuSeries, {
+			
+            setupChart(this.usage_chart = this.tags['pigod-panel'].usage_chart, cpuSeries, {
                 minValue: 0,
                 yMinFormatter: () => '',
                 yMaxFormatter: (max, prec) => parseFloat(cpuSeries.maxValue).toFixed(prec) + '%',
             }, { lineWidth:1.2, strokeStyle:'#3DFFA8', fillStyle:'rgba(179,254,165,0.36)' });
             
-            setupChart(this.temp_chart, tempSeries, {
+            setupChart(this.temp_chart = this.tags['pigod-panel'].temp_chart, tempSeries, {
                 minValueScale:1.05,
                 yMinFormatter: (min, prec) => parseFloat(tempSeries.minValue).toFixed(prec) + '\u00b0C',
                 yMaxFormatter: (max, prec) => parseFloat(tempSeries.maxValue).toFixed(prec) + '\u00b0C',

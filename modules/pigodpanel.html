@@ -1,0 +1,45 @@
+<pigod-panel class="panel panel-default" style="height:{isCollapsed?'44px':''}">
+
+	<header name="theHeader" class="panel-heading" onmousedown={toggleCollapse}>
+		<span class="panel-title">
+			<yield from="title"/>
+		</span>
+	</header>
+	
+	<div class="outside-body">
+		<yield from="outside-body"/>
+	</div>
+	
+	<div class="panel-body">
+		<yield from="body"/>
+	</div>
+
+	<style scoped>
+		:scope {
+			width: 500px;
+			height: 350px;
+			overflow: hidden;
+			transition-property: height;
+			transition-duration: 0.2s;
+			display: flex;
+			flex-direction: column;
+		}
+		.panel-body {
+			overflow: auto;			
+		}
+		.panel-heading {
+			flex-shrink: 0;
+		}
+		.outside-body {
+			flex-shrink: 0;
+		}
+	</style>
+	
+	<script type="text/es6arrow">
+		toggleCollapse() {
+			this.isCollapsed = !this.isCollapsed;
+		}
+	</script>
+	
+</pigod-panel>
+

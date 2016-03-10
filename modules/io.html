@@ -1,14 +1,13 @@
 <io-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Disk IO (<span class="io_read">read</span>/<span class="io_write">write</span>) &nbsp;
-                <span class="pull-right"><span class="io_read">{ io_read }</span> / <span class="io_write">{ io_write }</span></span>
-            </span>
-        </div>
-        <div>
-          <canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
-          <div class="panel-body">
+    <pigod-panel>
+		<yield to="title">
+			Disk IO (<span class="io_read">read</span>/<span class="io_write">write</span>) &nbsp;
+			<span class="pull-right"><span class="io_read">{ io_read }</span> / <span class="io_write">{ io_write }</span></span>
+		</yield>
+        <yield to="outside-body">
+			<canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
+		</yield>
+		<yield to="body">
             <table class="table-striped table-sparse" data-show-columns="true">
                 <thead>
                 <tr>
@@ -31,9 +30,8 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-    </div>
+		</yield>
+    </pigod-panel>
     
     <style scoped>
         td.command_col {
@@ -90,7 +88,7 @@
 
             chart.addTimeSeries(readSeries, { lineWidth:1.2, strokeStyle:'#3e6f5a', fillStyle:'rgba(62,111,90, 0.15)' });
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
-            chart.streamTo(this.disk_chart, 500);
+            chart.streamTo(this.disk_chart = this.tags['pigod-panel'].disk_chart, 500);
             
             addTooltipToChart(chart,  (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s W:' + values[1].toFixed(2) + ' K/s');
