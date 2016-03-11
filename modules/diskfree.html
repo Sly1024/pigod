@@ -7,8 +7,8 @@
 			<table class="sortable table-striped table-sparse" data-show-columns="true">
 				<thead>
 					<tr>
-						<th each={ col in columns } class={ highlight: parent.parent.sortedBy == col.key }>
-							<a href="#" onclick={ parent.parent.sortBy(col.key) }>{ col.header }</a>
+						<th each={ col in columns } class={ highlight: model.sortedBy == col.key }>
+							<a href="#" onclick={ model.sortBy(col.key) }>{ col.header }</a>
 						</th>
 					</tr>
 				</thead>

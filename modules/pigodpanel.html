@@ -1,16 +1,16 @@
 <pigod-panel class="panel panel-default" style="height:{isCollapsed?'44px':''}">
 
-	<header name="theHeader" class="panel-heading" onmousedown={toggleCollapse}>
-		<span class="panel-title">
+	<header class="panel-heading" onmousedown={toggleCollapse}>
+		<span name="yield_title" class="panel-title">
 			<yield from="title"/>
 		</span>
 	</header>
 	
-	<div class="outside-body">
+	<div name="yield_out_body" class="outside-body">
 		<yield from="outside-body"/>
 	</div>
 	
-	<div class="panel-body">
+	<div name="yield_body" class="panel-body">
 		<yield from="body"/>
 	</div>
 
@@ -36,6 +36,22 @@
 	</style>
 	
 	<script type="text/es6arrow">
+		var parent = this.parent;
+		
+		this.model = parent;
+		
+		this.on('mount', () => {
+			[this.yield_title, this.yield_out_body, this.yield_body].forEach(container => {
+				[].forEach.call(container.querySelectorAll('[name]'), el => {
+					var name = el.getAttribute('name');
+					if (!parent.hasOwnProperty(name)) {
+						parent[name] = el;
+					}
+				});
+			});
+			parent.trigger('panelmount');
+		});
+		
 		toggleCollapse() {
 			this.isCollapsed = !this.isCollapsed;
 		}

@@ -63,7 +63,7 @@
         var writeSeries = new TimeSeries();
         var canvas;
 
-        this.on('mount', function() {
+        this.on('panelmount', function() {
             var chart = new SmoothieChart({
                 millisPerPixel:500,
                 minValue: 0,
@@ -88,7 +88,7 @@
 
             chart.addTimeSeries(readSeries, { lineWidth:1.2, strokeStyle:'#3e6f5a', fillStyle:'rgba(62,111,90, 0.15)' });
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
-            chart.streamTo(this.disk_chart = this.tags['pigod-panel'].disk_chart, 500);
+            chart.streamTo(this.disk_chart, 500);
             
             addTooltipToChart(chart,  (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s W:' + values[1].toFixed(2) + ' K/s');

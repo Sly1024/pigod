@@ -81,15 +81,17 @@ See [docs/modules](docs/modules.md).
 
 TODOs
 -----
-I don't know where to start...  this is not in priority order!
+This is not in priority order!
+ * [x] Get rid of jQuery - it's too heavy, I only use a small portion; I like micro libraries more.
+ * [x] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client. 
+ * [x] Factor out a common panel tag and use it in all module tags.
+ * [ ] Factor out HTML table generation (maybe?) and sorting functionality.
  * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
- * [x] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client.
  * [ ] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
  * [ ] Add crosshair on mouseover to smoothie charts.
  * [ ] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
- * [x] Get rid of jQuery - it's too heavy, I only use a small portion; I like micro libraries more.
  * [ ] Add ability to manage individual modules on the client - start/stop stream(s), add/remove module.
  * [ ] Persist UI layout.
  * [ ] Documentation

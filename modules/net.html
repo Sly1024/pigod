@@ -24,7 +24,7 @@
               <tbody>
                 <tr each={ processes }>
                   <td>{USER}</td>
-                  <td class="pid_col text-right"><a href="#" onclick={ parent.parent.linkClick }>{PID}</a></td>
+                  <td class="pid_col text-right"><a href="#" onclick={ model.linkClick }>{PID}</a></td>
                   <td class="text-right net read highlight">{RECEIVED}</td>
                   <td class="text-right net write highlight">{SENT}</td>
                   <td class="text-left">{DEV}</td>
@@ -61,7 +61,7 @@
         var readSeries = new TimeSeries();
         var writeSeries = new TimeSeries();
 
-        this.on('mount', function () {
+        this.on('panelmount', function () {
             var chart = new SmoothieChart({
                 millisPerPixel:500,
                 minValue: 0,
@@ -86,7 +86,7 @@
 
             chart.addTimeSeries(readSeries, { lineWidth:1.2, strokeStyle:'#3e6f5a', fillStyle:'rgba(62,111,90, 0.15)' });
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
-            chart.streamTo(this.io_chart = this.tags['pigod-panel'].io_chart, 500);
+            chart.streamTo(this.io_chart, 500);
             
             addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s S:' + values[1].toFixed(2) + ' K/s');

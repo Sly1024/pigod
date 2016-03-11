@@ -1,22 +1,20 @@
 <webcam-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                WebCam
-                <button style="float:right;" onclick={ refresh }>R</button>
-            </span>            
-        </div>
-        <div class="panel-body">
-            <img name="wcimg" src="http://{window.location.hostname}:8081/?action=stream" width="465" style="-webkit-filter: brightness({brightness});">
+    <pigod-panel>
+		<yield to="title">
+			WebCam
+			<button style="float:right;" onclick={ model.refresh }>R</button>
+		</yield>
+		<yield to="body">
+            <img name="wcimg" src="http://{window.location.hostname}:8081/?action=stream" width="465" style="-webkit-filter: brightness({model.brightness});">
             <table width="100%"><tr>
                 <td>Brightness</td>
                 <td width="100%"> 
-                    <input name="brightnessInput" type="range" min="-100" max="100" value="0" onchange={brightnessChange}> 
+                    <input name="brightnessInput" type="range" min="-100" max="100" value="0" onchange={model.brightnessChange}> 
                 </td>
-                <td>{(brightness*100).toFixed(0)}%</td>
+                <td>{(model.brightness*100).toFixed(0)}%</td>
             </tr></table>
-        </div>
-    </div>
+        </yield>
+    </pigod-panel>
     
     <style scoped>
         td {

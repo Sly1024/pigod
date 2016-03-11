@@ -7,8 +7,8 @@
             <table class="sortable table-striped table-sparse" data-show-columns="true">
                 <thead>
                     <tr>
-                      <th><a href="#" onclick={ parent.sortBy('stat') }>Stat</a></th>
-                      <th><a href="#" onclick={ parent.sortBy('name') }>Service</a></th>
+                      <th><a href="#" onclick={ model.sortBy('stat') }>Stat</a></th>
+                      <th><a href="#" onclick={ model.sortBy('name') }>Service</a></th>
                       <th colspan="3">Command</th>
                     </tr>
                 </thead>
@@ -18,15 +18,15 @@
 						<td class="">{name}</td>
 						<td class="">
 							<img src="images/play.png" width="16" height="16" class={ enabled: canStart, disabled: !canStart }
-							onclick={ parent.parent.startClick }>
+							onclick={ model.startClick }>
 						</td>
 						<td class="">
 							<img src="images/stop.png" width="16" height="16" class={ enabled: canStop, disabled: !canStop }
-							onclick={ parent.parent.stopClick }>
+							onclick={ model.stopClick }>
 						</td>
 						<td class="">
 							<img src="images/restart.png" width="16" height="16" class={ enabled: canStop, disabled: !canStop }
-							onclick={ parent.parent.restartClick }>
+							onclick={ model.restartClick }>
 						</td>
 					</tr>
 				</tbody>
