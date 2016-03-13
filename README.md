@@ -85,8 +85,8 @@ This is not in priority order!
  * [x] Get rid of jQuery - it's too heavy, I only use a small portion; I like micro libraries more.
  * [x] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client. 
  * [x] Factor out a common panel tag and use it in all module tags.
+ * [x] Retry connection on client if disconnected.
  * [ ] Factor out HTML table generation (maybe?) and sorting functionality.
- * [ ] Retry connection on client if disconnected.
  * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
