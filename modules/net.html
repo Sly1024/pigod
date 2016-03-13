@@ -88,6 +88,8 @@
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
             chart.streamTo(this.io_chart, 500);
             
+			stretchCanvas(this.io_chart);
+			
             addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s S:' + values[1].toFixed(2) + ' K/s');
         });
@@ -101,15 +103,13 @@
         }
         
         updateProc(data) {
-            while (data.processes.length < 5) data.processes.push({ PID: '.' });
+            if (data.processes.length < 1) data.processes.push({ PID: '.' });
 
             var now = Date.now();
             readSeries.append(now, data.tot_recv);
             writeSeries.append(now, data.tot_sent);
             
             this.update(data);
-            
-            stretchCanvas(this.io_chart);
         }
         
         linkClick(event) {
