@@ -1,14 +1,13 @@
 <io-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Disk IO (<span class="io_read">read</span>/<span class="io_write">write</span>) &nbsp;
-                <span class="pull-right"><span class="io_read">{ io_read }</span> / <span class="io_write">{ io_write }</span></span>
-            </span>
-        </div>
-        <div>
-          <canvas name="disk-io-chart" width="420" height="90" class="smoothchart"></canvas>
-          <div class="panel-body">
+    <pigod-panel>
+		<yield to="title">
+			Disk IO (<span class="io_read">read</span>/<span class="io_write">write</span>) &nbsp;
+			<span class="pull-right"><span class="io_read">{ io_read }</span> / <span class="io_write">{ io_write }</span></span>
+		</yield>
+        <yield to="outside-body">
+			<canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
+		</yield>
+		<yield to="body">
             <table class="table-striped table-sparse" data-show-columns="true">
                 <thead>
                 <tr>
@@ -31,9 +30,8 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-    </div>
+		</yield>
+    </pigod-panel>
     
     <style scoped>
         td.command_col {
@@ -65,7 +63,7 @@
         var writeSeries = new TimeSeries();
         var canvas;
 
-        this.on('mount', function() {
+        this.on('panelmount', function() {
             var chart = new SmoothieChart({
                 millisPerPixel:500,
                 minValue: 0,
@@ -87,11 +85,12 @@
                 },
                 timestampFormatter:SmoothieChart.timeFormatter
             });
-            canvas = this.root.querySelector('canvas[name=disk-io-chart]');
 
             chart.addTimeSeries(readSeries, { lineWidth:1.2, strokeStyle:'#3e6f5a', fillStyle:'rgba(62,111,90, 0.15)' });
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
-            chart.streamTo(canvas, 500);
+            chart.streamTo(this.disk_chart, 500);
+            
+            stretchCanvas(this.disk_chart);
             
             addTooltipToChart(chart,  (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s W:' + values[1].toFixed(2) + ' K/s');
@@ -108,7 +107,7 @@
         updateProc(data) {
             var procs = data.processes;
             
-            while (procs.length < 5) procs.push({ TID: '.' });
+            if (procs.length < 1) procs.push({ TID: '.' });
 
             var now = Date.now();
             readSeries.append(now, data.total_read);
@@ -119,8 +118,6 @@
                 io_write : data.io_write,
                 processes : procs
             });
-            
-            stretchCanvas(canvas);
         }
     </script>
 </io-panel>

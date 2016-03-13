@@ -1,12 +1,9 @@
 <commands-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Commands
-            </span>
-        </div>
-        <div>
-          <div class="panel-body">
+    <pigod-panel>
+		<yield to="title">
+			Commands
+		</yield>
+		<yield to="body">
             <table class="sortable table-striped table-sparse commands-table" data-show-columns="true">
                 <thead>
                     <tr>
@@ -19,15 +16,17 @@
                         <tr each={commands}>
                             <td nowrap class="name">{name}</td>
                             <td title="{command}"><div class="truncate">{command}</div></td>
-                            <td><button onclick={parent.execClick}>Exec</button></td>
+                            <td><button onclick={model.execClick}>Exec</button></td>
                         </tr>
                     </tbody>
             </table>
-          </div>
-        </div>
-    </div>
+        </yield>
+    </pigod-panel>
     
     <style scoped>
+		table {
+			width: 100%;
+		}
         .truncate {
             width: 275px;
             white-space: nowrap;

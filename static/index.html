@@ -22,23 +22,43 @@
            // Internet Explorer) will be suppressed.
            return suppressErrorAlert;
         };
+        
+        if (typeof Object.assign != 'function') {
+          (function () {
+            Object.assign = function (target) {
+              'use strict';
+              if (target === undefined || target === null) {
+                throw new TypeError('Cannot convert undefined or null to object');
+              }
+
+              var output = Object(target);
+              for (var index = 1; index < arguments.length; index++) {
+                var source = arguments[index];
+                if (source !== undefined && source !== null) {
+                  for (var nextKey in source) {
+                    if (source.hasOwnProperty(nextKey)) {
+                      output[nextKey] = source[nextKey];
+                    }
+                  }
+                }
+              }
+              return output;
+            };
+          })();
+        }
     </script>
 
     <script type="text/javascript" src="sortable.js"></script>
     <script type="text/javascript" src="/modules/smoothie/smoothie.js"></script>
     
-    <script type="text/javascript" src="observable.js"></script>
+    <script type="text/javascript" src="/modules/riot/riot.js"></script>
+    <script type="text/javascript" src="pubsub.js"></script>
     <script type="text/javascript" src="wsPubSubClient.js"></script>
     
-    <script type="text/javascript" src="/modules/riot/riot.min.js"></script>
     <script type="text/javascript" src="/riot-tags.js"></script>
     
     <title>PiGod</title>
     <style type="text/css">
-        .infopanel {
-            width: 500px;
-            display: inline-block;
-        }
         .toggle {
             cursor: pointer;
         }
@@ -63,21 +83,24 @@
             float: right;
             margin: 5px;
         }
+
     </style>
     <script type="text/javascript">
     
         function $el(selector) { return document.querySelector(selector); }
     
-        var pubsub = new pigod.wsPubSubClient(location.host);
+        var pubsub = new pigod.pubsub();
+        var wsclient = new pigod.wsPubSubClient(location.host, pubsub);
 
         var isRunning = false;
         var modules = [];
+        var numStreams = 0;
         
         function init() {
             $el('#stopbtn').addEventListener('click', startStop);
 
-            pubsub.on('subscribe', update_subscription_count);
-            pubsub.on('unsubscribe', update_subscription_count);
+            pubsub.on('subscribe', function () { numStreams++; update_subscription_count(); });
+            pubsub.on('unsubscribe', function () { numStreams--; update_subscription_count(); });
             
             modules = riot.mount('*', { pubsub: pubsub });
             startStop.call($el('#stopbtn'));
@@ -93,8 +116,8 @@
             });
         }
         
-        function update_subscription_count(channel, list) {
-            $el('#subs_cnt').innerHTML = ''+list.length;
+        function update_subscription_count() {
+            $el('#subs_cnt').innerHTML = ''+numStreams;
         }
         
         function startStop() {
@@ -109,7 +132,7 @@
         }
         
         function stretchCanvas(canv) {
-            if (canv.width != canv.parentNode.offsetWidth) canv.width = canv.parentNode.offsetWidth;
+            if (canv.width != canv.parentNode.clientWidth) canv.width = canv.parentNode.clientWidth;
         }
         
         function addTooltipToChart(chart, ttipFn) {

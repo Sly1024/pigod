@@ -1,38 +1,30 @@
 <diskfree-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading toggle" data-toggle="collapse" data-target="#dfPanelCollapse">
-            <span class="panel-title">
-                Disk Usage ({last_udpated})
-            </span>
-        </div>
-        <div id="dfPanelCollapse" class="panel-collapse collapse in">
-          <div class="panel-body limit-height">
-            <table class="sortable table-striped table-sparse" data-show-columns="true">
-                <thead>
-                    <tr>
-                        <th each={ col in columns } class={ highlight: parent.sortedBy == col.key }>
-                            <a href="#" onclick={ parent.sortBy(col.key) }>{ col.header }</a>
-                        </th>
-                    </tr>
-                </thead>
-                    <tbody>
-                        <tr each={ item in dflist }>
-                            <td each={ col in parent.columns } class=column-{col.key}>
-                                { item[col.key] }
-                                <div if={ col.key == 'Use' } class="use-bar" style="width: {item.Use}"></div>
-                            </td> 
-                        </tr>
-                    </tbody>
-            </table>
-          </div>
-        </div>
-    </div>
+    <pigod-panel>
+		<yield to="title">
+			Disk Usage ({last_udpated})
+		</yield>
+		<yield to="body">
+			<table class="sortable table-striped table-sparse" data-show-columns="true">
+				<thead>
+					<tr>
+						<th each={ col in columns } class={ highlight: model.sortedBy == col.key }>
+							<a href="#" onclick={ model.sortBy(col.key) }>{ col.header }</a>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr each={ item in dflist }>
+						<td each={ col in parent.columns } class=column-{col.key}>
+							{ item[col.key] }
+							<div if={ col.key == 'Use' } class="use-bar" style="width: {item.Use}"></div>
+						</td> 
+					</tr>
+				</tbody>
+			</table>
+        </yield>
+    </pigod-panel>
     
     <style scoped>
-        .limit-height {
-            max-height: 200px;
-            overflow: auto;
-        }
         .highlight > a {
             color: #00BCD4;
         }

@@ -1,17 +1,17 @@
 <cpu-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                CPU: <span class="cpu-percent">{ cpu_perc }%</span> <span class="temperature">{ cpu_temp }&deg;C</span> <span class="voltage">{ cpu_volt }V</span>&nbsp;
-                <span>{ uptime }</span>&nbsp;
-                <span class="pull-right">
-                    MEM: <span class="free_mem" title="Used">{ used_mem }</span> / <span class="used_mem" title="Free">{ free_mem }</span> MiB
-                </span>
-            </span>
-        </div>
-        <canvas name="cpu-usage-chart" width="420" height="45" class="smoothchart"></canvas>
-        <canvas name="cpu-temp-chart" width="420" height="45" class="smoothchart"></canvas>
-          <div class="panel-body">
+    <pigod-panel>
+		<yield to="title">
+			CPU: <span class="cpu-percent">{ cpu_perc }%</span> <span class="temperature">{ cpu_temp }&deg;C</span> <span class="voltage">{ cpu_volt }V</span>&nbsp;
+			<span>{ uptime }</span>&nbsp;
+			<span class="pull-right">
+				MEM: <span class="free_mem" title="Used">{ used_mem }</span> / <span class="used_mem" title="Free">{ free_mem }</span> MiB
+			</span>
+		</yield>
+        <yield to="outside-body">
+			<canvas name="usage_chart" width="420" height="45" class="smoothchart"></canvas>
+			<canvas name="temp_chart" width="420" height="45" class="smoothchart"></canvas>
+		</yield>
+        <yield to="body">
             <table class="sortable table-striped table-sparse" data-show-columns="true">
                 <thead>
                     <tr>
@@ -24,20 +24,20 @@
                       <th>Command</th>
                     </tr>
                 </thead>
-                    <tbody>
-                        <tr each={ processes }>
-                            <td>{USER}</td>
-                            <td class="pid_col text-right"><a href="#" onclick={ parent.linkClick }>{PID}</a></td>
-                            <td class="ni_col text-right">{NI}<span class="glyphicon glyphicon-chevron-down faded" onclick={ parent.renice(-1) }></span><span class="glyphicon glyphicon-chevron-up faded" onclick={ parent.renice(+1) }></span></td>
-                            <td class="text-right cpu_col">{CPU}</td>
-                            <td class="text-right">{MEM}</td>
-                            <td class="text-right time_col">{TIME}</td>
-                            <td class="command_col"><div class="truncate">{COMMAND}</div></td>
-                        </tr>
-                    </tbody>
+				<tbody>
+					<tr each={ processes }>
+						<td>{USER}</td>
+						<td class="pid_col text-right"><a href="#" onclick={ model.linkClick }>{PID}</a></td>
+						<td class="ni_col text-right">{NI}<span class="glyphicon glyphicon-chevron-down faded" onclick={ model.renice(-1) }></span><span class="glyphicon glyphicon-chevron-up faded" onclick={ model.renice(+1) }></span></td>
+						<td class="text-right cpu_col">{CPU}</td>
+						<td class="text-right">{MEM}</td>
+						<td class="text-right time_col">{TIME}</td>
+						<td class="command_col"><div class="truncate">{COMMAND}</div></td>
+					</tr>
+				</tbody>
             </table>
-          </div>
-    </div>
+        </yield>
+    </pigod-panel>
     
     <style scoped>
         td.command_col {
@@ -89,7 +89,6 @@
         var cpuSeries = new TimeSeries();
         var tempSeries = new TimeSeries();
         var voltSeries = new TimeSeries();
-        var usage_canvas, temp_canvas;
         
         var defaultChartConfig = {
             millisPerPixel:500,
@@ -115,21 +114,24 @@
             chart.streamTo(canvas, 500);
         }
         
-        this.on('mount', () => {
-            usage_canvas = this.root.querySelector('canvas[name=cpu-usage-chart]');
-            setupChart(usage_canvas, cpuSeries, {
+        this.on('panelmount', () => {
+            setupChart(this.usage_chart, cpuSeries, {
                 minValue: 0,
                 yMinFormatter: () => '',
                 yMaxFormatter: (max, prec) => parseFloat(cpuSeries.maxValue).toFixed(prec) + '%',
             }, { lineWidth:1.2, strokeStyle:'#3DFFA8', fillStyle:'rgba(179,254,165,0.36)' });
+			
+            stretchCanvas(this.usage_chart);
             
-            temp_canvas = this.root.querySelector('canvas[name=cpu-temp-chart]');
-            setupChart(temp_canvas, tempSeries, {
+            setupChart(this.temp_chart, tempSeries, {
                 minValueScale:1.05,
                 yMinFormatter: (min, prec) => parseFloat(tempSeries.minValue).toFixed(prec) + '\u00b0C',
                 yMaxFormatter: (max, prec) => parseFloat(tempSeries.maxValue).toFixed(prec) + '\u00b0C',
             }, { lineWidth:1.2, strokeStyle:'#008cff', fillStyle:'rgba(27,134,252,0.36)' });
             
+            stretchCanvas(this.temp_chart);
+			
+			
             /*addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - ' + Math.floor(values[1] * 10) / 10 + '% (' + values[0] + '\u2103)'
             );*/
@@ -148,16 +150,14 @@
         
         updateProc(data) {
             while (data.processes.length < 5) data.processes.push({ PID: '.' });
-            this.update(data);
             
-            stretchCanvas(usage_canvas);
-            stretchCanvas(temp_canvas);
             cpuSeries.append(Date.now(), data.cpu_perc);
+            this.update(data);
         }
                 
         updateCpuTemp(data) {
-            this.update(data);
             if (data.cpu_temp) tempSeries.append(Date.now(), data.cpu_temp);
+            this.update(data);
         }
         
         linkClick(event) {

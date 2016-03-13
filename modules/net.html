@@ -1,16 +1,15 @@
 <net-panel>
-    <div class="panel panel-default infopanel">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Network (<span class="net_read">receive</span>/<span class="net_write">send</span>) &nbsp;
-                <span class="pull-right">
-                    <span class="net_read">{ tot_recv } K/s</span> / <span class="net_write">{ tot_sent } K/s</span>
-                </span>
-            </span>
-        </div>
-        <div>
-          <canvas name="net-io-chart" width="420" height="90" class="smoothchart"></canvas>
-          <div class="panel-body">
+    <pigod-panel>
+		<yield to="title">
+			Network (<span class="net_read">receive</span>/<span class="net_write">send</span>) &nbsp;
+			<span class="pull-right">
+				<span class="net_read">{ tot_recv } K/s</span> / <span class="net_write">{ tot_sent } K/s</span>
+			</span>
+		</yield>
+        <yield to="outside-body">
+          <canvas name="io_chart" width="420" height="90" class="smoothchart"></canvas>
+		</yield>
+		<yield to="body">
             <table class="table-striped table-sparse" data-show-columns="true">
                 <thead>
                 <tr>
@@ -25,7 +24,7 @@
               <tbody>
                 <tr each={ processes }>
                   <td>{USER}</td>
-                  <td class="pid_col text-right"><a href="#" onclick={ parent.linkClick }>{PID}</a></td>
+                  <td class="pid_col text-right"><a href="#" onclick={ model.linkClick }>{PID}</a></td>
                   <td class="text-right net read highlight">{RECEIVED}</td>
                   <td class="text-right net write highlight">{SENT}</td>
                   <td class="text-left">{DEV}</td>
@@ -33,9 +32,8 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-    </div>
+		</yield>
+    </pigod-panel>
     
     <style scoped>
         td.pid_col {
@@ -62,9 +60,8 @@
     <script type="text/es6arrow">
         var readSeries = new TimeSeries();
         var writeSeries = new TimeSeries();
-        var canvas;
 
-        this.on('mount', function () {
+        this.on('panelmount', function () {
             var chart = new SmoothieChart({
                 millisPerPixel:500,
                 minValue: 0,
@@ -86,12 +83,13 @@
                 },
                 timestampFormatter:SmoothieChart.timeFormatter
             });
-            canvas = this.root.querySelector('canvas[name=net-io-chart]');
 
             chart.addTimeSeries(readSeries, { lineWidth:1.2, strokeStyle:'#3e6f5a', fillStyle:'rgba(62,111,90, 0.15)' });
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
-            chart.streamTo(canvas, 500);
+            chart.streamTo(this.io_chart, 500);
             
+			stretchCanvas(this.io_chart);
+			
             addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s S:' + values[1].toFixed(2) + ' K/s');
         });
@@ -105,15 +103,13 @@
         }
         
         updateProc(data) {
-            while (data.processes.length < 5) data.processes.push({ PID: '.' });
+            if (data.processes.length < 1) data.processes.push({ PID: '.' });
 
             var now = Date.now();
             readSeries.append(now, data.tot_recv);
             writeSeries.append(now, data.tot_sent);
             
             this.update(data);
-            
-            stretchCanvas(canvas);
         }
         
         linkClick(event) {
