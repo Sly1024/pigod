@@ -1,6 +1,6 @@
 (function (exports, riot) {
 
-    function pubsub() {
+    function PubSub() {
         riot.observable(this);
         this.subs = riot.observable();
     }
@@ -26,9 +26,9 @@
             this.trigger('publish', channel, data);
         };
                 
-    })(pubsub.prototype);
+    })(PubSub.prototype);
     
-    exports.pubsub = pubsub;
+    exports.PubSub = PubSub;
     
 })(
 	typeof exports === 'object' ? exports : (this.pigod || (this.pigod = {})),

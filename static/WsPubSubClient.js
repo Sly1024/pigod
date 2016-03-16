@@ -1,6 +1,6 @@
 (function (exports, riot) {
 
-    function wsPubSubClient(hostPort, pubsub) {
+    function WsPubSubClient(hostPort, pubsub) {
         riot.observable(this);
         this.pubsub = pubsub;
         
@@ -170,9 +170,9 @@
             return source;
         };
         
-    })(wsPubSubClient.prototype);
+    })(WsPubSubClient.prototype);
     
-    exports.wsPubSubClient = wsPubSubClient;
+    exports.WsPubSubClient = WsPubSubClient;
     
 })(
     typeof exports === 'object' ? exports : (this.pigod || (this.pigod = {})),

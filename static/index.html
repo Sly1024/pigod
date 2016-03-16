@@ -52,8 +52,8 @@
     <script type="text/javascript" src="/modules/smoothie/smoothie.js"></script>
     
     <script type="text/javascript" src="/modules/riot/riot.js"></script>
-    <script type="text/javascript" src="pubsub.js"></script>
-    <script type="text/javascript" src="wsPubSubClient.js"></script>
+    <script type="text/javascript" src="PubSub.js"></script>
+    <script type="text/javascript" src="WsPubSubClient.js"></script>
     
     <script type="text/javascript" src="/riot-tags.js"></script>
     
@@ -89,8 +89,8 @@
     
         function $el(selector) { return document.querySelector(selector); }
     
-        var pubsub = new pigod.pubsub();
-        var wsclient = new pigod.wsPubSubClient(location.host, pubsub);
+        var pubsub = new pigod.PubSub();
+        var wsclient = new pigod.WsPubSubClient(location.host, pubsub);
 
         var isRunning = false;
         var modules = [];

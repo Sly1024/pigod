@@ -3,7 +3,8 @@
 	var riot = require('riot');
     var WebSocketServer = require('ws').Server;
 
-    function wsPubSubServer(server) {
+    function WsPubSubServer(server, pubsub) {
+        this.pubsub = pubsub;
         riot.observable(this);
         
         this.subs = riot.observable();
@@ -244,9 +245,9 @@
 
         };
         
-    })(wsPubSubServer.prototype);
+    })(WsPubSubServer.prototype);
     
-    exports.wsPubSubServer = wsPubSubServer;
+    exports.WsPubSubServer = WsPubSubServer;
 
 })(typeof exports === 'object' ? exports : (this.pigod || (this.pigod = {})));
 
