@@ -1,8 +1,8 @@
 var express = require('express');
 var app = express();
 var child_process = require('child_process');
-var PubSub = require('./static/PubSub').PubSub; 
-var WsPubSubServer = require('./WsPubSubServer').WsPubSubServer;
+var PubSub = require('./static/PubSub'); 
+var WsPubSubServer = require('./WsPubSubServer');
 var basicAuth = require('basic-auth-connect');
 var fs = require('fs');
 var riot = require('riot');
@@ -28,9 +28,8 @@ var server = app.listen(3000, function () {
 
 /*
 var pubsub = new PubSub();
-var wsServer = new PubSubServer(server, pubsub);
+var wsServer = new WsPubSubServer(server, pubsub);
 */
-
 var pubsub = new WsPubSubServer(server);
 
 var startedProcesses = [];
