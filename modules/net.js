@@ -58,6 +58,8 @@
             result.push(obj);
         }
         
+        result.$_idField = 'PID';
+        
         return {
             tot_sent : (totalSent*10 | 0)/10,
             tot_recv : (totalRecv*10 | 0)/10,                

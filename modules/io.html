@@ -106,10 +106,8 @@
         
         updateProc(data) {
             var procs = data.processes;
-            
-            if (procs.length < 1) procs.push({ TID: '.' });
-
             var now = Date.now();
+            
             readSeries.append(now, data.total_read);
             writeSeries.append(now, data.total_write);
             

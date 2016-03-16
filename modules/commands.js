@@ -9,10 +9,13 @@
         var allCommands = [
             { id: 'kodi', name: 'Kodi', command: 'su -c startkodi - pi' },
             { id: 'chmusb', name: 'Chmod Usb', command: 'chmod -R a+w /mnt/usb/' },
+            { id: 'chmpigod', name: 'Chmod PiGod src', command: 'chmod -R a+w /home/pi/pigod/src/' },
             { id: 'reboot', name: 'Reboot', command: 'sudo reboot -f' },
             { id: 'rescan_minidlna', name: 'Rescan MiniDLNA', command: 'sudo minidlna -R; sudo service minidlna restart' }
         ];
 
+        allCommands.$_idField = 'id';
+        
         allCommands.forEach(function (cmd) { commandsById[cmd.id] = cmd; });
 
         api.pubsub.subscribe('getCommands', function (data, targetWs, sourceWs) {

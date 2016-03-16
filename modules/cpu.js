@@ -88,6 +88,8 @@
         // uptime
         var upt = lines[0].match(uptimeRE);
 
+        result.$_idField = 'PID';
+        
         return { 
             cpu_perc : (totalCPU * 10 | 0) / 10,
             used_mem : (mems[4] >> 10),

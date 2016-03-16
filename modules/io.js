@@ -52,6 +52,8 @@
         
         var total = lines[0].split(/\s+/);        
                 
+        result.$_idField = 'TID';
+                
         return {
             total_read: Number(total[3]) * units[total[4]] / 1000,
             total_write: Number(total[9]) * units[total[10]] / 1000,

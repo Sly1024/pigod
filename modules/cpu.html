@@ -149,8 +149,6 @@
         
         
         updateProc(data) {
-            while (data.processes.length < 5) data.processes.push({ PID: '.' });
-            
             cpuSeries.append(Date.now(), data.cpu_perc);
             this.update(data);
         }

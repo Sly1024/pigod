@@ -23,8 +23,8 @@
            return suppressErrorAlert;
         };
         
+        // some polyfills        
         if (typeof Object.assign != 'function') {
-          (function () {
             Object.assign = function (target) {
               'use strict';
               if (target === undefined || target === null) {
@@ -44,8 +44,8 @@
               }
               return output;
             };
-          })();
         }
+        
     </script>
 
     <script type="text/javascript" src="sortable.js"></script>
