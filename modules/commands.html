@@ -41,7 +41,6 @@
     <script type="text/es6arrow">
         start() {
             opts.pubsub.subscribe('commands', data => this.updateProc(data));
-            opts.pubsub.publish('getCommands');
         }
         
         stop() {
@@ -52,7 +51,7 @@
             this.update({ 
                 commands : data
             });
-        }        
+        }
         
         execClick(event) {
             var item = event.item;

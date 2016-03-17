@@ -26,11 +26,9 @@ var server = app.listen(3000, function () {
   console.log('PiGod server listening on port %s', port);
 });
 
-/*
+
 var pubsub = new PubSub();
 var wsServer = new WsPubSubServer(server, pubsub);
-*/
-var pubsub = new WsPubSubServer(server);
 
 var startedProcesses = [];
 

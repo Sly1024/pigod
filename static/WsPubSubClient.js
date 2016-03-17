@@ -54,18 +54,19 @@
 
         ws.onmessage = function (msg) {
             var data = JSON.parse(msg.data);
-            if (data.action === 'publish') {
-                var channel = data.channel;
-                if (channel && data.payload) {
-                    me.ignorePublish = true;
-                    var applied = me.applyDiff(me.states[channel], data.payload);
-                    me.states[channel] = applied;
-                    me.pubsub.publish(data.channel, applied);
-                    me.ignorePublish = false;
-                } else {
-                    throw new Error('[wsPubSubClient] unidentified msg ' + msg);
-                }
-            }
+
+            // if (data.action === 'publish')  -- Nothing else comes from the server, so I removed this field
+
+            var channel = data.channel;
+            if (channel && data.payload) {
+                me.ignorePublish = true;
+                var applied = me.applyDiff(me.states[channel], data.payload);
+                me.states[channel] = applied;
+                me.pubsub.publish(data.channel, applied);
+                me.ignorePublish = false;
+            } else {
+                throw new Error('[wsPubSubClient] unidentified msg ' + msg);
+            }            
         };
         
         ws.onclose = function () {

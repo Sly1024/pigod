@@ -86,11 +86,11 @@ This is not in priority order!
  * [x] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client. 
  * [x] Factor out a common panel tag and use it in all module tags.
  * [x] Retry connection on client if disconnected.
+ * [x] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
  * [ ] Factor out HTML table generation (maybe?) and sorting functionality.
  * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
- * [ ] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
  * [ ] Add crosshair on mouseover to smoothie charts.
  * [ ] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
  * [ ] Add ability to manage individual modules on the client - start/stop stream(s), add/remove module.

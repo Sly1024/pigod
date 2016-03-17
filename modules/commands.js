@@ -17,10 +17,8 @@
         allCommands.$_idField = 'id';
         
         allCommands.forEach(function (cmd) { commandsById[cmd.id] = cmd; });
-
-        api.pubsub.subscribe('getCommands', function (data, targetWs, sourceWs) {
-            api.pubsub.publish('commands', allCommands, sourceWs);
-        });
+        
+        api.pubsub.publish('commands', allCommands);
 
         api.pubsub.subscribe('execCommand', function (data) {
             if (data.id && commandsById[data.id]) {
