@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
 var child_process = require('child_process');
-var PubSubServer = require('./wsPubSubServer').wsPubSubServer;
+var PubSub = require('./static/PubSub'); 
+var WsPubSubServer = require('./WsPubSubServer');
 var basicAuth = require('basic-auth-connect');
 var fs = require('fs');
 var riot = require('riot');
@@ -25,7 +26,9 @@ var server = app.listen(3000, function () {
   console.log('PiGod server listening on port %s', port);
 });
 
-var pubsub = new PubSubServer(server);
+
+var pubsub = new PubSub();
+var wsServer = new WsPubSubServer(server, pubsub);
 
 var startedProcesses = [];
 

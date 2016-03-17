@@ -103,8 +103,6 @@
         }
         
         updateProc(data) {
-            if (data.processes.length < 1) data.processes.push({ PID: '.' });
-
             var now = Date.now();
             readSeries.append(now, data.tot_recv);
             writeSeries.append(now, data.tot_sent);

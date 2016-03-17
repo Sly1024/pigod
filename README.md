@@ -27,7 +27,7 @@ Install runtime dependencies
  * [basic-auth-connect](https://www.npmjs.com/package/basic-auth-connect) - for basic security; planning to do proper HTTPS in the future
  * [riot.js](http://riotjs.com/) - a data-binding micro library; compiling tag files on server and binding to UI on the client
  * [Bootstrap](http://getbootstrap.com/) - for basic styling
- * [jQuery](https://jquery.com/) - because Bootstrap needs it, but I want to get rid of it
+ * ~~[jQuery](https://jquery.com/) - because Bootstrap needs it, but I want to get rid of it~~
  * [smoothie charts](http://smoothiecharts.org/) - for displaying timeseries data graphs
  * [ws](https://github.com/websockets/ws) - websocket lib for node
 
@@ -85,14 +85,14 @@ This is not in priority order!
  * [x] Get rid of jQuery - it's too heavy, I only use a small portion; I like micro libraries more.
  * [x] Use the [observable](http://riotjs.com/api/observable/) provided by riot.js as it is present on both server and client. 
  * [x] Factor out a common panel tag and use it in all module tags.
+ * [x] Retry connection on client if disconnected.
+ * [x] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
+ * [x] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
  * [ ] Factor out HTML table generation (maybe?) and sorting functionality.
- * [ ] Retry connection on client if disconnected.
  * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
- * [ ] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
  * [ ] Add crosshair on mouseover to smoothie charts.
- * [ ] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
  * [ ] Add ability to manage individual modules on the client - start/stop stream(s), add/remove module.
  * [ ] Persist UI layout.
  * [ ] Documentation

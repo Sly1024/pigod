@@ -14,18 +14,18 @@
                 </thead>
 				<tbody>
 					<tr each={ services }>
-						<td><img src="images/{icon}.png" width="16" height="16"></td>
+						<td><img src="images/{model.status2Icon[stat]}.png" width="16" height="16"></td>
 						<td class="">{name}</td>
 						<td class="">
-							<img src="images/play.png" width="16" height="16" class={ enabled: canStart, disabled: !canStart }
+							<img src="images/play.png" width="16" height="16" class={ enabled: stat != '+', disabled: stat == '+' }
 							onclick={ model.startClick }>
 						</td>
 						<td class="">
-							<img src="images/stop.png" width="16" height="16" class={ enabled: canStop, disabled: !canStop }
+							<img src="images/stop.png" width="16" height="16" class={ enabled: stat != '-', disabled: stat == '-' }
 							onclick={ model.stopClick }>
 						</td>
 						<td class="">
-							<img src="images/restart.png" width="16" height="16" class={ enabled: canStop, disabled: !canStop }
+							<img src="images/restart.png" width="16" height="16" class={ enabled: stat != '-', disabled: stat == '-' }
 							onclick={ model.restartClick }>
 						</td>
 					</tr>
@@ -48,7 +48,6 @@
         var sortProps = ['name', 'stat'];
         
         var servicesSorted = [];     // sorted
-        var servicesByName = {};    // service obj by name 
         
         start() {
             opts.pubsub.subscribe('services', data => this.updateProc(data));
@@ -58,38 +57,20 @@
             opts.pubsub.unsubscribe('services');
         }
         
-        var svcStatRE = /^ \[ ([-+\?]) \]  (.*)$/;
-        var status2Icon = {
+        this.status2Icon = {
             '-' : 'error',
             '+' : 'ok',
             '?' : 'help'
         };
         
         updateProc(data) {
-            var lines = data.split('\n');
             var needSort = false;
             
-            for (var i = 0; i < lines.length; ++i) {
-                var match = lines[i].match(svcStatRE);
-                if (match && match.length === 3) {
-                    var name = match[2];
-                    var stat = match[1];
-                    var obj = servicesByName[name];
-                    
-                    if (!obj) {
-                        obj = { name: name };
-                        servicesByName[name] = obj;
-                        servicesSorted.push(obj);
-                        needSort = true;
-                    }
-                    obj.stat = stat;
-                    obj.icon = status2Icon[stat];
-                    obj.canStart = stat != '+';
-                    obj.canStop = stat != '-';
-                }
-            }
+            // don't want to sort (modify) the array, because it is the previous state stored by the diff engine!
+            // TODO: save a deep clone in the wsPubSubClient's diff 
+            servicesSorted = data.slice();
             
-            if (needSort) this.doSort();
+            this.doSort();
             
             this.update({ 
                 last_udpated : new Date().toLocaleString(),
