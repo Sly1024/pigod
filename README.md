@@ -27,7 +27,7 @@ Install runtime dependencies
  * [basic-auth-connect](https://www.npmjs.com/package/basic-auth-connect) - for basic security; planning to do proper HTTPS in the future
  * [riot.js](http://riotjs.com/) - a data-binding micro library; compiling tag files on server and binding to UI on the client
  * [Bootstrap](http://getbootstrap.com/) - for basic styling
- * [jQuery](https://jquery.com/) - because Bootstrap needs it, but I want to get rid of it
+ * ~~[jQuery](https://jquery.com/) - because Bootstrap needs it, but I want to get rid of it~~
  * [smoothie charts](http://smoothiecharts.org/) - for displaying timeseries data graphs
  * [ws](https://github.com/websockets/ws) - websocket lib for node
 
