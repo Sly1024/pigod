@@ -1,7 +1,5 @@
 (function (exports) {
 
-    exports.tagFile = 'net.html';
-
     exports.init = function init(api) {
         api.registerDataStream('nettop', 
             api.createProcessStream('nettop', 'nethogs', ['-d2'], processData)
