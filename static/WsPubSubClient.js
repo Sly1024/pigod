@@ -1,4 +1,4 @@
-(function (riot) {
+(function (riot, Diff) {
 
     function WsPubSubClient(hostPort, pubsub) {
         riot.observable(this);
@@ -60,7 +60,7 @@
             var channel = data.channel;
             if (channel && data.payload) {
                 me.ignorePublish = true;
-                var applied = me.applyDiff(me.states[channel], data.payload);
+                var applied = Diff.applyDiff(me.states[channel], data.payload);
                 me.states[channel] = applied;
                 me.pubsub.publish(data.channel, applied);
                 me.ignorePublish = false;
@@ -96,82 +96,11 @@
         var str = JSON.stringify(data);
         if (ws.readyState === 1) ws.send(str); else this.wsQ.push(str);
     };
-    
-    /** --------- Diff Functions -------------- */
-    
-    var obj2str = Object.prototype.toString;
-    
-    function isObject(arg) {
-        return obj2str.call(arg) === '[object Object]';
-    }
-    
-    function isArray(arg) {
-        return Array.isArray ? Array.isArray(arg) : obj2str.call(arg) === '[object Object]';
-    }
-
-    /**
-     * Diff table for different source/target types.
-     * `target` = same value as target
-     * ND = No Diff (NODIFF_OBJ)
-     *
-     * | souce\target | null/undef | primitive | { object } |  [ array ]   |
-     * +--------------+------------+-----------+------------+--------------+
-     * |  null/undef  |  target/ND |  target   |   target   |    target    |
-     * |  primitive   |   target   | target/ND |   target   |    target    |
-     * |  { object }  |   target   |  target   |  {diff}/ND |    target    |
-     * |  [ array ]   |   target   |  target   |   target   |{$_arrDiff}/ND|
-     *
-     */
-    proto.applyDiff = function(source, diff) {
-        //if (source == null) return diff;  - No need
         
-        if (isObject(diff)) {
-            if (isArray(source) && diff.$_arrDiff) {
-                return this.applyArrDiff(source, diff);
-            }
-            if (isObject(source)) {
-                return this.applyObjDiff(source, diff);
-            }
-        }
-        
-        return diff;
-    };
-    
-    proto.applyObjDiff = function (source, diff) {
-        for (var key in diff) if (diff.hasOwnProperty(key)) {
-            source[key] = this.applyDiff(source[key], diff[key]);
-        }
-        if (diff.$_removed) {
-            diff.$_removed.forEach( function (key) {
-                source[key] = undefined;    // we could `delete source[key];` but this is more efficient 
-            });
-        }
-        return source;
-    };
-    
-    proto.applyArrDiff = function (source, diff) {            
-        var me = this;
-        var arrDiff = diff.$_arrDiff;
-        
-        // remove
-        arrDiff[0].forEach(function (idx) { source.splice(idx, 1); });
-        
-        // move
-        arrDiff[1].forEach(function (move) {
-            var item = source.splice(move[0], 1)[0];
-            if (move.length > 2) item = me.applyDiff(item, move[2]);
-            source.splice(move[1], 0, item);
-        });
-        
-        // insert
-        arrDiff[2].forEach(function (insert) {
-            source.splice(insert[0], 0, insert[1]);
-        });
-        
-        return source;
-    };
-    
     if (typeof module !== 'undefined') module.exports = WsPubSubClient; 
     else (this.pigod || (this.pigod = {})).WsPubSubClient = WsPubSubClient;
     
-})(this.riot || require('riot'));
+})(
+    this.riot || require('riot'),
+    pigod.Diff || require('Diff')
+);
