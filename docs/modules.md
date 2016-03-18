@@ -1,6 +1,8 @@
 # Modules
 
-The server tries to load each *.js file from the `modules` folder with require(). Modules must export an `init` function and an optional `tagFile` string containing the name of a [riot.js](http://riotjs.com/) tag file.
+The server tries to load each *.js file from the `modules` folder with require(). Modules must export an `init` function that gets called with an `api` object from the server.
+
+The *.html files are treated as [riot.js](http://riotjs.com/) tag files, they are compiled with riot and concatenated into a single block of JavaScript code that is returned when `/riot-tags.js` is requested from the server.
 
 ##How they work
 Most of the "streaming" modules just run a shell command and capture, process and publish the standard output to a *wsPubSub* object that forwards the data through a WebSocket channel to the client. On the client each module can subscribe to one or more "channels".
