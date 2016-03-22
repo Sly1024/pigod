@@ -120,7 +120,9 @@ var serverApi = {
 };
 
 // load modules
-fs.readdir('./modules', function (err, files) {
+const moduleDir = './modules/';
+
+fs.readdir(moduleDir, function (err, files) {
     if (err) {
         err = 'Error: Could not read modules folder.\n' + err;
         console.log(err);
@@ -131,11 +133,19 @@ fs.readdir('./modules', function (err, files) {
         if (/\.js$/.test(fileName)) {
             console.log('Loading module ' + fileName);
             try {
-                var module = require('./modules/' + fileName);
+                var module = require(moduleDir + fileName);
                 module.init(serverApi);
-                if (module.tagFile) loadTag('./modules/' + module.tagFile);
             } catch (err) {
                 console.log(`Error: Could not initialize module ${fileName}.\n${err}`);
+            }
+        }
+        
+        if (/\.html$/.test(fileName)) {
+            console.log('Loading riot tag file ' + fileName);
+            try {
+                loadTag(moduleDir + fileName);
+            } catch (err) {
+                console.log(`Error loading or compiling riot tag file "${fileName}".\n${err}`);
             }
         }
     });
@@ -143,11 +153,7 @@ fs.readdir('./modules', function (err, files) {
 });
 
 function loadTag(fileName) {
-    try {
-        compiled_tags.push(riot.compile(fs.readFileSync(fileName, 'utf8'), {}, fileName));
-    } catch (err) {
-        console.log(`Error loading or compiling riot tag file "${fileName}".\n${err}`);
-    }
+    compiled_tags.push(riot.compile(fs.readFileSync(fileName, 'utf8'), {}, fileName));
 }
 
 // cleanup code

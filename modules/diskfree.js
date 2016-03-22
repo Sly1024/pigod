@@ -1,7 +1,5 @@
 (function (exports) {
 
-    exports.tagFile = 'diskfree.html';
-    
     exports.init = function init(api) {
         api.registerDataStream('diskfree', 
             api.createProcessStream('diskfree', './dfstream.sh', [], processData, 0, true)

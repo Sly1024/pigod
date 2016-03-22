@@ -1,7 +1,5 @@
 (function (exports) {
 
-    exports.tagFile = 'io.html';
-
     exports.init = function init(api) {
         api.registerDataStream('iotop', 
             api.createProcessStream('iotop', 'iotop', ['-bod2'], processData)
