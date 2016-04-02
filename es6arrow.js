@@ -70,7 +70,7 @@
         var finalEdits = [];
         var match;
         
-        console.log('Processing ' + url);
+        console.log('[es6arrow] Processing ' + url);
         
         /* Find ES6-style method blocks
          * <pre><code>
@@ -97,6 +97,8 @@
                         { ins: '=(function', idx: namePos + match[3].length /* function name end pos */ },
                         { ins: ').bind(this);', idx: endPos+1 /* function block end pos */ }
                     );
+                } else {
+                    console.log('[es6arrow] Potential syntax error at pos ' + namePos + ' around "'+match[3]+'"');
                 }
             }
         }
@@ -148,7 +150,7 @@
                     edits.push({ idx: valuePos, ins: '{return '}, { idx: valueEnd, ins: ';}).bind(this)' });
                 }
             }
-            if (ok) finalEdits.push.apply(finalEdits, edits); else console.log('Lambda replacement failed: ', match[0], ' at ', match.index, ' in ', url);
+            if (ok) finalEdits.push.apply(finalEdits, edits); else console.log('[es6arrow] Lambda replacement failed: ', match[0], ' at ', match.index, ' in ', url);
         }
         
         if (finalEdits.length > 0) {                

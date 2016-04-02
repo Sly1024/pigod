@@ -7,36 +7,25 @@
 			</span>
 		</yield>
         <yield to="outside-body">
-          <canvas name="io_chart" width="420" height="90" class="smoothchart"></canvas>
+            <canvas name="io_chart" width="420" height="90" class="smoothchart"></canvas>
 		</yield>
 		<yield to="body">
-            <table class="table-striped table-sparse" data-show-columns="true">
-                <thead>
-                <tr>
-                  <th>User</th>
-                  <th>PID</th>
-                  <th>Recv. K/s</th>
-                  <th>Sent K/s</th>
-                  <th>Device</th>
-                  <th>Command</th>
-                </tr>
-                </thead>
-              <tbody>
-                <tr each={ processes }>
-                  <td>{USER}</td>
-                  <td class="pid_col text-right"><a href="#" onclick={ model.linkClick }>{PID}</a></td>
-                  <td class="text-right net read highlight">{RECEIVED}</td>
-                  <td class="text-right net write highlight">{SENT}</td>
-                  <td class="text-left">{DEV}</td>
-                  <td class="command_col"><div class="truncate">{PROGRAM}<div></td>
-                </tr>
-              </tbody>
-            </table>
+            <riot-table rows={processes} context={model} >
+                <riot-col key="USER" header="User" />
+                <riot-col key="PID" header="PID" cls="text-right" 
+                    tpl={'<a href="#">{row.PID}</a>'} 
+                    cellclick={ parent.model.linkClick } />
+                <riot-col key="RECEIVED" header="Recv. K/s" cls="text-right net read highlight"/>
+                <riot-col key="SENT" header="Sent K/s" cls="text-right net write highlight"/>
+                <riot-col key="DEV" header="Device" />
+                <riot-col key="PROGRAM" header="Command" 
+                    tpl={'<div class="truncate">{row.PROGRAM}</div>'} />
+            </riot-table>
 		</yield>
     </pigod-panel>
     
     <style scoped>
-        td.pid_col {
+        td.column-PID {
             min-width: 45px;
         }
         .net.read,.net.write {
@@ -95,26 +84,24 @@
         });
         
         start() {
-            opts.pubsub.subscribe('nettop', (data) => this.updateProc(data));
+            opts.pubsub.subscribe('nettop', this.handler = (data) => this.updateProc(data));
         }
         
         stop() {
-            opts.pubsub.unsubscribe('nettop');
+            opts.pubsub.unsubscribe('nettop', this.handler);
         }
         
         updateProc(data) {
             var now = Date.now();
             readSeries.append(now, data.tot_recv);
             writeSeries.append(now, data.tot_sent);
-            
             this.update(data);
         }
         
-        linkClick(event) {
-            var row = event.item;
-            var pid = parseInt(row.PID);
+        linkClick(pid, row) {
+            var pid = parseInt(pid);
             if (row && pid) {
-                if (confirm('Kill pid ' + row.PID + ' (' + row.PROGRAM + ')?')) {
+                if (confirm('Kill pid ' + pid + ' (' + row.PROGRAM + ')?')) {
                     opts.pubsub.publish('pidkill', { pid: pid });
                 }
             }

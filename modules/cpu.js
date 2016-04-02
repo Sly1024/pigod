@@ -4,7 +4,7 @@
         var child_process = require('child_process');
         
         api.registerDataStream('cputemp', 
-            api.createProcessStream('cputemp', './cputmpstream.sh', [], processTempData, 50)
+            api.createProcessStream('cputemp', './cputmpstream.sh', [], processTempData, 150)
         );
         
         api.registerDataStream('top', 
@@ -26,6 +26,7 @@
     
     var tempRE = /temp=(\d+\.?\d*)'C/;
     var voltRE = /volt=(\d+\.?\d*)V/;
+    var freqRE = /frequency.*=(\d+)/;
     
     function processTempData(data) {
         var result = {};
@@ -37,9 +38,14 @@
         
         match = voltRE.exec(data);
         if (match && match[1]) {
-            result.cpu_volt = parseFloat(match[1]);
+            result.cpu_volt = parseFloat(match[1]).toFixed(2);
         }
         
+        match = freqRE.exec(data);
+        if (match && match[1]) {
+            result.cpu_freq = (parseInt(match[1])/1000000).toFixed(0);
+        }
+
         return result;
     }
     

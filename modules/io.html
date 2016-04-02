@@ -8,36 +8,19 @@
 			<canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
 		</yield>
 		<yield to="body">
-            <table class="table-striped table-sparse" data-show-columns="true">
-                <thead>
-                <tr>
-                  <th>User</th>
-                  <th>TID</th>
-                  <th>Read</th>
-                  <th>Write</th>
-                  <th>IO%</th>
-                  <th>Command</th>
-                </tr>
-                </thead>
-              <tbody>
-                <tr each={ processes }>
-                  <td>{USER}</td>
-                  <td class="tid_col text-right">{TID}</td>
-                  <td class="text-right disk read highlight">{READ}</td>
-                  <td class="text-right disk write highlight">{WRITE}</td>
-                  <td class="text-right">{IO}</td>
-                  <td class="command_col"><div class="truncate">{COMMAND}</div></td>
-                </tr>
-              </tbody>
-            </table>
+            <riot-table rows={processes} context={model} >
+                <riot-col key="USER" header="User" />
+                <riot-col key="TID" header="TID" cls="text-right"/>
+                <riot-col key="READ" header="Read" cls="text-right disk read highlight"/>
+                <riot-col key="WRITE" header="Write" cls="text-right disk write highlight"/>
+                <riot-col key="IO" header="IO%" />
+                <riot-col key="COMMAND" header="Command" tpl={'<div class="truncate">{row.COMMAND}</div>'} />
+            </riot-table>
 		</yield>
     </pigod-panel>
     
     <style scoped>
-        td.command_col {
-            min-width: 150px;
-        }
-        td.tid_col {
+        td.column-TID {
             min-width: 45px;
         }
         .disk.read,.disk.write {
@@ -97,15 +80,14 @@
         });
         
         start() {
-            opts.pubsub.subscribe('iotop', (data) => this.updateProc(data));
+            opts.pubsub.subscribe('iotop', this.handler = (data) => this.updateProc(data));
         }
         
         stop() {
-            opts.pubsub.unsubscribe('iotop');
+            opts.pubsub.unsubscribe('iotop', this.handler);
         }
         
         updateProc(data) {
-            var procs = data.processes;
             var now = Date.now();
             
             readSeries.append(now, data.total_read);
@@ -114,7 +96,7 @@
             this.update({
                 io_read : data.io_read,
                 io_write : data.io_write,
-                processes : procs
+                processes: data.processes
             });
         }
     </script>

@@ -1,59 +1,57 @@
 <cpu-panel>
     <pigod-panel>
 		<yield to="title">
-			CPU: <span class="cpu-percent">{ cpu_perc }%</span> <span class="temperature">{ cpu_temp }&deg;C</span> <span class="voltage">{ cpu_volt }V</span>&nbsp;
-			<span>{ uptime }</span>&nbsp;
-			<span class="pull-right">
-				MEM: <span class="free_mem" title="Used">{ used_mem }</span> / <span class="used_mem" title="Free">{ free_mem }</span> MiB
-			</span>
+			CPU
+            <span style="font-size: 14px;">
+                <span class="cpu-percent">{ cpu_perc }%</span>
+                <span class="temperature">{ cpu_temp }&deg;C</span>
+                <span class="frequency">{ cpu_freq }MHz</span>
+                <span class="voltage">{ cpu_volt }V</span>
+                <span class="uptime">{ uptime }</span>
+                <span class="pull-right">
+                    <span class="free_mem" title="Used">{ used_mem }</span>/<span class="used_mem" title="Free">{ free_mem }</span> MB
+                </span>
+            </span>
 		</yield>
         <yield to="outside-body">
 			<canvas name="usage_chart" width="420" height="45" class="smoothchart"></canvas>
 			<canvas name="temp_chart" width="420" height="45" class="smoothchart"></canvas>
 		</yield>
         <yield to="body">
-            <table class="sortable table-striped table-sparse" data-show-columns="true">
-                <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>PID</th>
-                      <th>NI</th>
-                      <th>CPU%</th>
-                      <th>Mem%</th>
-                      <th>Time</th>
-                      <th>Command</th>
-                    </tr>
-                </thead>
-				<tbody>
-					<tr each={ processes }>
-						<td>{USER}</td>
-						<td class="pid_col text-right"><a href="#" onclick={ model.linkClick }>{PID}</a></td>
-						<td class="ni_col text-right">{NI}<span class="glyphicon glyphicon-chevron-down faded" onclick={ model.renice(-1) }></span><span class="glyphicon glyphicon-chevron-up faded" onclick={ model.renice(+1) }></span></td>
-						<td class="text-right cpu_col">{CPU}</td>
-						<td class="text-right">{MEM}</td>
-						<td class="text-right time_col">{TIME}</td>
-						<td class="command_col"><div class="truncate">{COMMAND}</div></td>
-					</tr>
-				</tbody>
-            </table>
+            <riot-table rows={processes} context={model} >
+                <riot-col key="USER" header="User" />
+                <riot-col key="PID" header="PID" cls="text-right" 
+                        tpl={'<a href="">{row.PID}</a>'} 
+                        cellclick={ parent.model.linkClick } 
+                />
+                <riot-col key="NI" header="NI" cls="text-right" 
+                        tpl={'<span class="glyphicon glyphicon-chevron-down faded"></span> {row.NI}
+                            <span class="glyphicon glyphicon-chevron-up faded"></span>'} 
+                        cellclick={ parent.model.niceClick }
+                />
+                <riot-col key="CPU" header="CPU%" cls="text-right"/>
+                <riot-col key="MEM" header="Mem%" cls="text-right"/>
+                <riot-col key="TIME" header="Time" cls="text-right"/>
+                <riot-col key="COMMAND" header="Command" tpl={'<div class="truncate">{row.COMMAND}</div>'} />
+            </riot-table>
         </yield>
     </pigod-panel>
     
     <style scoped>
-        td.command_col {
-            min-width: 150px;
+        td.column-USER {
+            min-width: 45px;
         }
-        td.time_col {
+        td.column-TIME {
             min-width: 70px;
         }
-        td.pid_col {
+        td.column-PID {
             min-width: 45px;
         }
-        td.cpu_col {
+        td.column-NI {
+            min-width: 45px;
+        }
+        td.column-CPU {
             background-color: rgba(179,254,165,0.36);
-        }
-        td.ni_col {
-            min-width: 45px;
         }
         .cpu-percent {
             color: #2FB075;
@@ -62,7 +60,10 @@
             color: #337ab7;
         }
         .voltage {
-            color: #de6868;
+            color: #c75d5d;
+        }
+        .frequency {
+            color: #9c7bbd;
         }
         span.free_mem {
             color: #3e6f5a;
@@ -71,15 +72,12 @@
         span.used_mem {
             color: #de6868;
         }
-        .faded {
+        .column-NI .faded {
             opacity: 0.25;
             cursor: pointer;
             font-size: 12px;
-            transition: opacity .25s ease-in-out;
-            -moz-transition: opacity .25s ease-in-out;
-            -webkit-transition: opacity .25s ease-in-out;
         }
-        .faded:hover {
+        .column-NI .faded:hover {
             opacity: 1;
         }
 
@@ -138,16 +136,15 @@
         });
         
         start() {
-            opts.pubsub.subscribe('top', data => this.updateProc(data));
-            opts.pubsub.subscribe('cputemp', data => this.updateCpuTemp(data));
+            opts.pubsub.subscribe('top', this.topHandler = data => this.updateProc(data));
+            opts.pubsub.subscribe('cputemp', this.cpuTempHandler = data => this.updateCpuTemp(data));
         }
         
         stop() {
-            opts.pubsub.unsubscribe('top');
-            opts.pubsub.unsubscribe('cputemp');
+            opts.pubsub.unsubscribe('top', this.topHandler);
+            opts.pubsub.unsubscribe('cputemp', this.cpuTempHandler);
         }
-        
-        
+
         updateProc(data) {
             cpuSeries.append(Date.now(), data.cpu_perc);
             this.update(data);
@@ -158,25 +155,32 @@
             this.update(data);
         }
         
-        linkClick(event) {
-            var row = event.item;
-            var pid = parseInt(row.PID);
+        linkClick(value, row) {
+            var pid = parseInt(value);
             if (row && pid) {
-                if (confirm('Kill pid ' + row.PID + ' (' + row.COMMAND + ')?')) {
+                if (confirm('Kill pid ' + pid + ' (' + row.COMMAND + ')?')) {
                     opts.pubsub.publish('pidkill', { pid: pid });
                 }
             }
         }
         
-        renice(delta) {
-            return (event) => {
-                var row = event.item;
-                var pid = parseInt(row.PID);
-                var ni = parseInt(row.NI);
-                if (row && pid && !isNaN(ni)) {
-                    opts.pubsub.publish('renice', { pid: pid, ni: ni+delta });
-                }
-            };
+        renice(row, delta) {
+            var pid = parseInt(row.PID);
+            var ni = parseInt(row.NI);
+            if (row && pid && !isNaN(ni)) {
+                opts.pubsub.publish('renice', { pid: pid, ni: ni+delta });
+            }
+        }
+        
+        niceClick(value, row, col, evt) {
+            var up = evt.target.className.indexOf('glyphicon-chevron-up') >= 0;
+            var down = evt.target.className.indexOf('glyphicon-chevron-down') >=0;
+            if (up) {
+                this.renice(row, 1);
+            }
+            if (down) {
+                this.renice(row, -1);
+            }
         }
 
     </script>

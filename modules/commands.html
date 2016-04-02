@@ -4,57 +4,46 @@
 			Commands
 		</yield>
 		<yield to="body">
-            <table class="sortable table-striped table-sparse commands-table" data-show-columns="true">
-                <thead>
-                    <tr>
-                      <th><a href="#" >Name</a></th>
-                      <th><a href="#" >Command</a></th>
-                      <th>Execute</th>
-                    </tr>
-                </thead>
-                    <tbody>
-                        <tr each={commands}>
-                            <td nowrap class="name">{name}</td>
-                            <td title="{command}"><div class="truncate">{command}</div></td>
-                            <td><button onclick={model.execClick}>Exec</button></td>
-                        </tr>
-                    </tbody>
-            </table>
+            <riot-table stretchcol="command" rows={rows} context={model} >
+                <riot-col key="name" header="Name" />
+                <riot-col key="command" header="Command" />
+                <riot-col key="exec" header="Exec" cls="text-center"
+                    tpl={'<img src="images/play.png" width="16" height="16" class="button">'} 
+                    cellclick={parent.model.execClick}/>
+            </riot-table>
         </yield>
     </pigod-panel>
     
     <style scoped>
-		table {
-			width: 100%;
-		}
-        .truncate {
-            width: 275px;
+        .column-command {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .name {
+        .column-name {
             font-weight: bold;
+        }
+        img.button {
+            cursor: pointer;
         }
     </style>
     
     <script type="text/es6arrow">
         start() {
-            opts.pubsub.subscribe('commands', data => this.updateProc(data));
+            opts.pubsub.subscribe('commands', this.handler = data => this.updateProc(data));
         }
         
         stop() {
-            opts.pubsub.unsubscribe('commands');
+            opts.pubsub.unsubscribe('commands', this.handler);
         }
         
         updateProc(data) {
             this.update({ 
-                commands : data
+                rows: data
             });
         }
         
-        execClick(event) {
-            var item = event.item;
+        execClick(value, item) {
             if (item && item.id) this.execCommand(item.id, item.name);
         }
                 

@@ -4,57 +4,36 @@
 			Services ({last_udpated})
 		</yield>
 		<yield to="body">
-            <table class="sortable table-striped table-sparse" data-show-columns="true">
-                <thead>
-                    <tr>
-                      <th><a href="#" onclick={ model.sortBy('stat') }>Stat</a></th>
-                      <th><a href="#" onclick={ model.sortBy('name') }>Service</a></th>
-                      <th colspan="3">Command</th>
-                    </tr>
-                </thead>
-				<tbody>
-					<tr each={ services }>
-						<td><img src="images/{model.status2Icon[stat]}.png" width="16" height="16"></td>
-						<td class="">{name}</td>
-						<td class="">
-							<img src="images/play.png" width="16" height="16" class={ enabled: stat != '+', disabled: stat == '+' }
-							onclick={ model.startClick }>
-						</td>
-						<td class="">
-							<img src="images/stop.png" width="16" height="16" class={ enabled: stat != '-', disabled: stat == '-' }
-							onclick={ model.stopClick }>
-						</td>
-						<td class="">
-							<img src="images/restart.png" width="16" height="16" class={ enabled: stat != '-', disabled: stat == '-' }
-							onclick={ model.restartClick }>
-						</td>
-					</tr>
-				</tbody>
-            </table>
+            <riot-table stretchcol="name" rows={services} context={model} >
+                <riot-col key="stat" header="Stat" cls="text-center"
+                    tpl={'<img src="images/{status2Icon[row.stat]}.png" width="16" height="16">'}/>
+                <riot-col key="name" header="Name" />
+                <riot-col key="commands" header="Commands" cls="text-center" tpl={'
+                    <img src="images/play.png" width="16" height="16" class="button start { row.stat == \'+\' ? \'disabled\' : \'\' }" >
+                    <img src="images/stop.png" width="16" height="16" class="button stop { row.stat == \'-\' ? \'disabled\' : \'\' }" >
+                    <img src="images/restart.png" width="16" height="16" class="button restart { row.stat == \'-\' ? \'disabled\' : \'\' }" >
+                '} cellclick={parent.model.commandClick}/>
+            </riot-table>
         </yield>
     </pigod-panel>
     
     <style scoped>
+        img.button {
+            cursor: pointer;
+        }
         img.disabled {
             -webkit-filter: grayscale(100%);
-        }
-        img.enabled {
-            cursor: pointer;
+            cursor: initial;
         }
     </style>
     
     <script type="text/es6arrow">
-        this.sortedBy = 'name';
-        var sortProps = ['name', 'stat'];
-        
-        var servicesSorted = [];     // sorted
-        
         start() {
-            opts.pubsub.subscribe('services', data => this.updateProc(data));
+            opts.pubsub.subscribe('services', this.handler = data => this.updateProc(data));
         }
         
         stop() {
-            opts.pubsub.unsubscribe('services');
+            opts.pubsub.unsubscribe('services', this.handler);
         }
         
         this.status2Icon = {
@@ -64,57 +43,32 @@
         };
         
         updateProc(data) {
-            var needSort = false;
-            
-            // don't want to sort (modify) the array, because it is the previous state stored by the diff engine!
-            // TODO: save a deep clone in the wsPubSubClient's diff 
-            servicesSorted = data.slice();
-            
-            this.doSort();
-            
-            this.update({ 
-                last_udpated : new Date().toLocaleString(),
-                services : servicesSorted
+            this.update({
+                last_udpated: new Date().toLocaleString(),
+                services: data.slice()
             });   
         }
         
-        sortBy(what) {            
-            return () => {
-                this.sortedBy = what;
-                this.doSort();
-                this.update({ 
-                    services : servicesSorted
-                });
-            };
+        commandClick(value, row, col, evt) {
+            if (evt.target.tagName !== 'IMG' ) return;
+            
+            ['start', 'stop', 'restart'].forEach(cmd => {
+                if (evt.target.className.indexOf(' '+cmd) >= 0) {
+                    this[cmd+'Click'](row);
+                }
+            });
         }
         
-        doSort() {
-            var sort = this.sortedBy;
-            var props = sortProps.filter(x => x != sort);
-            servicesSorted.sort(this.combineCompareFns(this.compareFn(sort), this.compareFn(props[0])));
+        startClick(item) {
+            if (item && item.stat != '+') this.serviceCall(item.name, 'start');
         }
         
-        compareFn(sort) {
-            return (a, b) => a[sort] < b[sort] ? -1 : a[sort] > b[sort] ? 1 : 0;
+        stopClick(item) {
+            if (item && item.stat != '-') this.serviceCall(item.name, 'stop');
         }
         
-        combineCompareFns(fn1, fn2) {
-            return (a, b) => fn1(a, b) || fn2(a, b);
-        }
-        
-        startClick(event) {
-            var item = event.item;
-            if (item && item.canStart) this.serviceCall(item.name, 'start');
-        }
-        
-        stopClick(event) {
-            var item = event.item;
-            if (item && item.canStop) this.serviceCall(item.name, 'stop');
-        }
-        
-        restartClick(event) {
-            var item = event.item;
-            if (item && item.canStop) this.serviceCall(item.name, 'restart');
+        restartClick(item) {
+            if (item && item.stat != '-') this.serviceCall(item.name, 'restart');
         }
         
         serviceCall(name, command) {

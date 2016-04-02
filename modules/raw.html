@@ -1,0 +1,54 @@
+<raw>
+    <script type="text/es6arrow">
+
+        var ctx = this.opts.context || {};
+        var evalWith = 'with (ctx) with (this._parent) ';
+
+        this.on('update', () => {
+            this.handlers = {};
+
+            this.root.innerHTML = this.opts.content.
+            replace(/on(\w+)=\{(.*?)\}/g, (_, eName, expr) => {
+                try {
+                    var handler = eval(evalWith + expr);
+                    if (typeof handler !== 'function') {
+                        throw new Error('Handler for ' + eName + ' is not a function.');
+                    }
+                    
+                    var id;
+                    do { id = ((Math.random() * (1<<30))|0).toString(36); } while (this.handlers[id]);
+                    this.handlers[id] = handler;
+                    
+                    return 'data-handler data-on-' + eName + '="' + id + '"';
+                } catch (e) {
+                    console.log(e);
+                }
+            }).
+            replace(/\{(.*?)\}/g, (_, expr) => {                
+                try {
+                    return eval(evalWith + expr);
+                } catch (e) {
+                    console.log(e);
+                }
+            });
+        });
+        
+        this.on('updated', () => {
+            [].forEach.call(this.root.querySelectorAll('[data-handler]'), el => {
+                el.removeAttribute('data-handler');
+                [].forEach.call(el.attributes, attrib => {
+                    var match = /data-on-(.*)/.exec(attrib.name);
+                    var hdlr = this.handlers[attrib.value];
+                    if (match && hdlr) {
+                        el['on'+match[1]] = (evt) => {
+                            evt.item = this.opts.item;
+                            hdlr.call(el, evt);
+                        };
+                        el.removeAttribute('data-on-'+match[1]);
+                    }
+                });
+            });
+            this.handlers = null;
+        });
+    </script>
+</raw>
