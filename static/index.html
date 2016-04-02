@@ -45,7 +45,7 @@
               return output;
             };
         }
-        
+
     </script>
 
     <script type="text/javascript" src="sortable.js"></script>
@@ -75,7 +75,6 @@
             vertical-align: top;
         }
         td .truncate {
-            width: 150px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -87,8 +86,6 @@
 
     </style>
     <script type="text/javascript">
-    
-        function $el(selector) { return document.querySelector(selector); }
     
         var pubsub = new pigod.PubSub();
         var wsclient = new pigod.WsPubSubClient(location.host, pubsub);
@@ -162,6 +159,39 @@
     
   </head>
   <body onload="init()">
+    <script type="text/javascript">
+        // and utils
+        function $el(selector, root) { return (root || document).querySelector(selector); }
+        function $els(selector, root) { return (root || document).querySelectorAll(selector); }
+        
+        if (typeof document.body.contains === 'function') {
+            function $under(parent, child) {
+                return parent.contains(child);
+            }
+        } else {
+            function $under(parent, child) {
+                while (child && child !== parent) child = child.parentElement;
+                return !!child;
+            }
+        }
+        
+        if (typeof document.body.closest === 'function') {
+            function $up(tagName, root, stopAt) { 
+                var found = root.closest(tagName);
+                return $under(stopAt, found) && found || null;
+            }
+        } else {
+            function $up(tagName, root, stopAt) {                
+                tagName = tagName.toUpperCase();
+                while (root && root !== stopAt && root.tagName !== tagName) root = root.parentElement;
+                return root === stopAt ? null : root;
+            }
+        }
+        
+        function $fn(fn) { return typeof fn === 'function'; }
+        
+    </script>
+    
       Receiving <span id="subs_cnt">0</span> data streams. <button class="btn btn-primary" id="stopbtn">??</button>
       <div class="rpi_reference">
         Powered by <a href="https://www.raspberrypi.org/">Raspberry Pi</a>

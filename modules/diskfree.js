@@ -33,8 +33,9 @@
             rows.push(obj);
         }
         
+        rows.$_idFunc = (item) => item['Filesystem']+item['Mountedon'];
+        
         return {
-            columns: columns.map((key, idx) => ({ key: key, header: columnNames[idx] })),
             rows: rows
         };
     }

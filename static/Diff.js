@@ -60,6 +60,14 @@
         
         return diff || NODIFF_OBJ;
     }
+    
+    function getIndexOf(item, array, idFunc, startIdx) {
+        var id = idFunc(item);
+        for (var i = startIdx || 0; i < array.length; ++i) {
+            if (idFunc(array[i]) == id) return i;
+        }
+        return -1;
+    }
 
     function getHasFuncField(array, idField) {
         var hasId = null;
@@ -72,11 +80,11 @@
         };
     }
 
-    function getHasFuncRef(array) {
+    function getHasFuncRef(array, idFunc) {
         var copy = null;
         return function (item) { 
             copy = copy || array.slice();
-            var idx = copy.indexOf(item);
+            var idx = idFunc ? getIndexOf(item, copy, idFunc) : copy.indexOf(item);
             if (idx >= 0) {
                 copy.splice(idx, 1);
                 return true;
@@ -91,6 +99,7 @@
 
         var targetHas, srcHas, same, getIdxInSrc;
         var idField = target.$_idField;
+        var idFunc = target.$_idFunc;
         
         if (idField) {  // items are identified by a field
             targetHas = getHasFuncField(target, idField);                
@@ -101,6 +110,13 @@
                 for (var i = startIdx; i < src.length; ++i) if (src[i][idField] === itemID) return i;
                 return -1;
             };
+        } else if (idFunc) {
+            targetHas = getHasFuncRef(target, idFunc);                
+            srcHas = getHasFuncRef(src, idFunc);
+            same = function (a, b) { return idFunc(a) == idFunc(b); };
+            getIdxInSrc = function (item, startIdx) {
+                return getIndexOf(item, src, idFunc, startIdx);
+            };            
         } else {    // identity is the reference
             targetHas = getHasFuncRef(target);
             srcHas = getHasFuncRef(src);
@@ -168,7 +184,7 @@
         }
         if (diff.$_removed) {
             diff.$_removed.forEach( function (key) {
-                source[key] = undefined;    // we could `delete source[key];` but this is more efficient 
+                delete source[key];    // Don't set it to `undefined`, that causes issues!
             });
         }
         return source;

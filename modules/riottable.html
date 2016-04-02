@@ -1,0 +1,161 @@
+<riot-col>
+</riot-col>
+<riot-table>
+    <table class="fixed-header sortable table-striped table-sparse" data-show-columns="true">
+        <thead>
+            <tr>
+                <th each={ col in cols } class="column-{col.key} { highlight: parent.sortedBy == col.key }">
+                    <a href="" onclick={ parent.sortBy(col.key) }>{col.header || col.key}</a>
+                </td>
+            </tr>
+        </thead>
+        <tbody onclick={ tableClicked }>
+            <tr each={ row in rows }>
+                <td each={ col in parent.cols } class="column-{col.key} { [].concat(col.cls).join(' ') }">
+                    {!col.tpl ? row[col.key] : ''}
+                    <raw if={col.tpl} 
+                         content={col.tpl} 
+                         item={row}
+                         context={parent.parent.opts.context}
+                    ></raw>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="display:none;">
+       <yield/>
+    </div>
+
+    <style scoped>
+        .highlight > a {
+            color: #00BCD4;
+        }
+        th {
+            text-align: center;
+            white-space: nowrap;
+        }
+        td {
+            position: relative;
+            white-space: nowrap;
+        }
+        tr {
+            opacity: 0.999;
+        }
+        table.fixed-header {
+            padding: 10px 5px 10px 10px;
+            
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        table.fixed-header tbody {
+            overflow-x: hidden;            
+            overflow-y: auto;            
+        }
+    </style>
+    
+    <script type="text/es6arrow">
+        this.sortedBy = '';
+        this.sortReversed = false;
+
+        this.sortedRows = [];
+       
+        this.on('mount', () => {
+            var rcols = this.tags['riot-col'];
+            this.cols = rcols && rcols.map(colTag => colTag.opts) || [];
+        });
+        
+        this.on('update', () => {
+            this.rows = this.opts.rows ? this.opts.rows.slice() : [];
+            this.doSort();
+        });
+
+        this.on('updated', () => {
+            if (this.cols) {
+                var stretchKey = this.opts.stretchcol || this.cols[this.cols.length-1].key;
+
+                this.cols.map(col => {
+                    var th = $el('th.column-'+col.key, this.root);
+                    var td = $el('td.column-'+col.key, this.root);
+                    td.style.minWidth = th.offsetWidth + 'px';
+                    if (col.key === stretchKey) td.style.width = '100%';
+                    return [th, td];
+                }).forEach(thtd => {
+                    thtd[0].style.width = thtd[1].offsetWidth + 'px';
+                });
+            }
+        });
+        
+        sortBy(what) {
+            return () => {
+                if (what == this.sortedBy) {
+                    this.sortReversed = !this.sortReversed; 
+                } else { 
+                    this.sortReversed = false;
+                    this.sortedBy = what;
+                }
+                //this.doSort(); - no need, this is called as a handler, riot automatically update()s.
+            };
+        }
+        
+        doSort() {
+            var sort = this.sortedBy;
+            if (sort) {
+                var sample = this.rows.length ? this.rows[0][sort] : '';
+                var compFn = /*this.addSortCmp(*/this.compareFn(sort, /^\d/.test(sample) && this.parseNum) /*, ['Mountedon', 'FileSystem'])*/;
+                if (this.sortReversed) compFn = this.reverseCompareFn(compFn);
+                this.rows.sort(compFn);
+            }
+        }
+        
+        var scales = { K: 1<<10, M: 1<<20, G: 1<<30, T: 1<<40, '%': 0.01 };
+        
+        parseNum(str) {
+            var val = parseFloat(str);
+            var sc = scales[str[str.length-1]];
+            return sc ? val * sc : val;
+        }
+        
+        compareFn(sortField, preProc) {
+            return preProc ? 
+            ((a, b) => { 
+                var av = preProc(a[sortField]), bv = preProc(b[sortField]);
+                return av < bv ? -1 : av > bv ? 1 : 0;
+            }) :
+            ((a, b) => a[sortField] < b[sortField] ? -1 : a[sortField] > b[sortField] ? 1 : 0);
+        }
+        
+        combineCompareFns(fn1, fn2) {
+            return (a, b) => fn1(a, b) || fn2(a, b);
+        }
+        
+        addSortCmp(fn, sortFields) {
+            return sortFields.reduce((cfn, sortField) => this.combineCompareFns(cfn, this.compareFn(sortField)), fn);
+        }
+        
+        reverseCompareFn(fn) {
+            return (a, b) => fn(b, a);
+        }
+        
+        tableClicked (evt) {
+            var td = $up('td', evt.target, this.root);
+            if (!td) return;
+            var tr = td.parentElement;
+            var colIdx = [].indexOf.call(tr.children, td);
+            var col = this.cols[colIdx];
+            if (!col || !$fn(col.cellclick)) return;
+            var row = tr._tag.row;
+            // context(this) : riot-table Tag
+            // params: value, row, col, evt
+            col.cellclick.call(this, row[col.key], row, col, evt, tr, td);   
+        }
+
+        
+    </script>
+</riot-table>
