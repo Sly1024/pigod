@@ -21,9 +21,9 @@ It hides away all the WebSocket handling from the rest of the code. The server a
 
 It is actually more generic than that. Anyone can subscribe to a channel with a handler function, and anyone can publish, which means that modules could communicate with each other too. 
 
-[The client](../static/wsPubSubClient.js) is relatively simple, in addition to publishing to local subscribers it sends every action to the server. 
+[The client](../static/WsPubSubClient.js) is relatively simple, in addition to publishing to local subscribers it sends every action to the server. 
 
-[The server](../wsPubSubServer.js) is a bit more complicated. When a client sends a "subscribe" action to the server, the server subscribes itself with a function that will send the messages to the given client, except if it's the source of the message - we don't want to send back the message to the client it came from.
+[The server](../WsPubSubServer.js) is a bit more complicated. When a client sends a "subscribe" action to the server, the server subscribes itself with a function that will send the messages to the given client, except if it's the source of the message - we don't want to send back the message to the client it came from.
 
 ##### Reqest-Response
 There are some cases when a client module wants to fetch some (constant) data from the server - for example the [commands module](../modules/commands.js).
