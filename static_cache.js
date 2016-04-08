@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = function (readFile, riot_filename) {
     function loadStatic(filename) {
         if (filename.startsWith('/modules')) {
@@ -10,8 +12,8 @@ module.exports = function (readFile, riot_filename) {
 
     // read index.html up front and cache the static js files referenced in <script> tags
 
-    var indexPromise = readFile('static/index.html', 'utf8').then(index => {
-        var static_files = [];
+    const indexPromise = readFile('static/index.html', 'utf8').then(index => {
+        const static_files = [];
         
         index = index.replace(/<script.*?src="([^"]+)"\s*>\s*<\/script>/g, (full, filename) => {
             if (filename == riot_filename) return '<script type="text/javascript" src="/static-and-riot-tags.js"></script>';
@@ -28,10 +30,8 @@ module.exports = function (readFile, riot_filename) {
         process.exit();
     });
 
-    var staticFilesPromise = indexPromise.then(p => Promise.all(p.static_files).then(filecontents => filecontents.join('\n')));
-
     return {
-        indexPromise: indexPromise,
-        filesPromise: staticFilesPromise
+        indexPromise: indexPromise.then(obj => obj.index),
+        filesPromise: indexPromise.then(obj => Promise.all(obj.static_files).then(filecontents => filecontents.join('\n')))
     };
 };

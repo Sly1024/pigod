@@ -1,4 +1,5 @@
-var riot = require('riot');
+"use strict";
+const riot = require('riot');
 
 module.exports = function (readFile, readdir, serverApi) {
     const moduleDir = './modules/';
@@ -12,16 +13,16 @@ module.exports = function (readFile, readdir, serverApi) {
         console.log(fileName);
         return readFile(fileName, 'utf8').then(content => riot.compile(content, {}, fileName)).catch(err => {
             console.log(`Error loading or compiling riot tag file "${fileName}".\n${err}`);
-            return Promise.resolve(''); // can continue with other modules
+            return Promise.resolve(`/* Could not load ${fileName}. */`); // can continue with other modules
         });
     }
     
-    var riotTagsPromise = readdir(moduleDir).then(function (files) {    
+    const riotTagsPromise = readdir(moduleDir).then(function (files) {    
         console.log(yellow('Loading modules ...'));
         files.filter(f => /\.js$/.test(f)).forEach((fileName) => {
             console.log(fileName);
             try {
-                var module = require(moduleDir + fileName);
+                const module = require(moduleDir + fileName);
                 if (typeof module.init !== 'function') throw new Error(`No 'init' function exported.`);
                 module.init(serverApi);
             } catch (err) {
