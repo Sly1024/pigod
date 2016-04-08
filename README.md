@@ -88,7 +88,7 @@ This is not in priority order!
  * [x] Retry connection on client if disconnected.
  * [x] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
  * [x] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
- * [ ] Factor out HTML table generation (maybe?) and sorting functionality.
+ * [x] Factor out HTML table generation ~~(maybe?)~~ and sorting functionality.
  * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
