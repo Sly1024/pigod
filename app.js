@@ -10,16 +10,42 @@ var riot = require('riot');
 // install our custom parser
 riot.parsers.js.es6arrow = require('./es6arrow');
 
-var compiled_tags = [];
-
 app.use(basicAuth('pi', 'berry'));
+
+const riot_filename = '/riot-tags.js'; 
+
+
+function promisify(func) {
+    return function () {    // <- Don't use arrow function here!
+        return new Promise((resolve, reject) => {
+            try {
+                func.apply(this, [].slice.call(arguments).concat((err, data) => err ? reject(err) : resolve(data) ));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    };
+}
+
+var readFile = promisify(fs.readFile);
+var static_cache = require('./static_cache')(readFile, riot_filename);
+
+app.get('/', function (req, res) {
+    static_cache.indexPromise.then(p => res.send(p.index));
+});
+
+// we serve all the compiled tag files as a single riot-tags.js
+app.get(riot_filename, function (req, res) {
+    riotTagsPromise.then(riot_content => res.send(riot_content));
+});
+
+app.get('/static-and-riot-tags.js', function (req, res) {
+    Promise.all([static_cache.filesPromise, riotTagsPromise]).then(contents => res.send(contents[0] + contents[1]));
+});
+
 app.use(express.static('static'));
 app.use('/modules', express.static('node_modules'));
 
-// we serve all the compiled tag files as a single riot-tags.js
-app.get('/riot-tags.js', function (req, res) {
-    res.send(compiled_tags.join('\n'));
-});
 
 var server = app.listen(3000, function () {
   var port = server.address().port;
@@ -119,42 +145,7 @@ var serverApi = {
     killStartedProc: killStartedProc
 };
 
-// load modules
-const moduleDir = './modules/';
-
-fs.readdir(moduleDir, function (err, files) {
-    if (err) {
-        err = 'Error: Could not read modules folder.\n' + err;
-        console.log(err);
-        throw new Error(err);
-    }
-    
-    files.forEach(function (fileName) {
-        if (/\.js$/.test(fileName)) {
-            console.log('Loading module ' + fileName);
-            try {
-                var module = require(moduleDir + fileName);
-                module.init(serverApi);
-            } catch (err) {
-                console.log(`Error: Could not initialize module ${fileName}.\n${err}`);
-            }
-        }
-        
-        if (/\.html$/.test(fileName)) {
-            console.log('Loading riot tag file ' + fileName);
-            try {
-                loadTag(moduleDir + fileName);
-            } catch (err) {
-                console.log(`Error loading or compiling riot tag file "${fileName}".\n${err}`);
-            }
-        }
-    });
-    
-});
-
-function loadTag(fileName) {
-    compiled_tags.push(riot.compile(fs.readFileSync(fileName, 'utf8'), {}, fileName));
-}
+var riotTagsPromise = require('./load_modules')(readFile, promisify(fs.readdir), serverApi);
 
 // cleanup code
 function cleanup() {
