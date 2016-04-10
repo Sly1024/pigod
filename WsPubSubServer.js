@@ -1,5 +1,6 @@
-var WebSocketServer = require('ws').Server;
-var Diff = require('./static/Diff');
+"use strict";
+const WebSocketServer = require('ws').Server;
+const Diff = require('./static/Diff');
 
 function WsPubSubServer(server, pubsub) {
     this.pubsub = pubsub;
@@ -11,14 +12,14 @@ function WsPubSubServer(server, pubsub) {
     this.start(server);
 }
 
-var proto = WsPubSubServer.prototype;
+const proto = WsPubSubServer.prototype;
 
 proto.start = function (server) {
-    var me = this;
-    var wss = this.wss = new WebSocketServer({ server: server });
+    const me = this;
+    const wss = this.wss = new WebSocketServer({ server: server });
     
     wss.on('connection', function (ws) {
-        var client = {
+        const client = {
             ws: ws,
             channels: {}
         };
@@ -37,7 +38,7 @@ proto.start = function (server) {
 
 proto.onMessage = function(msg, client) {
     //console.log('got message', msg);
-    var data = JSON.parse(msg);
+    const data = JSON.parse(msg);
     
     switch (data.action) {
         case 'subscribe': this.subscribe(data.channel, client);
@@ -53,16 +54,16 @@ proto.onClose = function (client) {
     Object.keys(client.channels).forEach(channel => {
         this.unsubscribe(channel, client);
     });
-    var idx = this.clients.indexOf(client);
+    const idx = this.clients.indexOf(client);
     this.clients.splice(idx, 1);
 };
 
 proto.pubsubPublish = function (channel, data) {
-    var diff = Diff.getDiff(this.states[channel], data);
+    const diff = Diff.getDiff(this.states[channel], data);
     this.states[channel] = data;
     
     if (diff !== Diff.NODIFF_OBJ) {
-        var msg = JSON.stringify({ channel: channel, payload: diff });
+        const msg = JSON.stringify({ channel: channel, payload: diff });
         
         this.clients.forEach(client => {
             if (this.publishingClient !== client && client.channels[channel]) {
@@ -79,7 +80,7 @@ proto.subscribe = function(channel, client) {
         this.pubsub.subscribe(channel);
         
         // send current state
-        var state = this.states[channel];
+        const state = this.states[channel];
         if (state) {
             client.ws.send(JSON.stringify({ channel: channel, payload: state }));
         }

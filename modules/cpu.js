@@ -1,7 +1,8 @@
+"use strict";
 (function (exports) {
 
     exports.init = function init(api) {
-        var child_process = require('child_process');
+        const child_process = require('child_process');
         
         api.registerDataStream('cputemp', 
             api.createProcessStream('cputemp', './cputmpstream.sh', [], processTempData, 150)
@@ -24,14 +25,14 @@
         });
     }
     
-    var tempRE = /temp=(\d+\.?\d*)'C/;
-    var voltRE = /volt=(\d+\.?\d*)V/;
-    var freqRE = /frequency.*=(\d+)/;
+    const tempRE = /temp=(\d+\.?\d*)'C/;
+    const voltRE = /volt=(\d+\.?\d*)V/;
+    const freqRE = /frequency.*=(\d+)/;
     
     function processTempData(data) {
-        var result = {};
+        const result = {};
         
-        var match = tempRE.exec(data);
+        let match = tempRE.exec(data);
         if (match && match[1]) {
             result.cpu_temp = parseFloat(match[1]);
         }
@@ -51,9 +52,9 @@
     
     
     // process data from 'top'
-    var beginRE = /^\s*top/;
-    var uptimeRE = /up (([^,]+) days,)?\s*([^,]+)/;
-    var collected = '';
+    const beginRE = /^\s*top/;
+    const uptimeRE = /up (([^,]+) days,)?\s*([^,]+)/;
+    let collected = '';
     
     function processTopData(data) {
         // collecting chunks
@@ -64,22 +65,22 @@
         collected += data;
 
         
-        var lines = collected.split('\n');
+        const lines = collected.split('\n');
                     
-        var result = [];
-        var columns = lines[6].split(/\s+/).map( (name) => name.replace(/[%\+]/g, '') );
+        const result = [];
+        const columns = lines[6].split(/\s+/).map( (name) => name.replace(/[%\+]/g, '') );
         while (columns[0] === '') columns.shift();
         
-        var cmdCol = columns.indexOf('COMMAND');
+        const cmdCol = columns.indexOf('COMMAND');
         
-        var totalCPU = 0;
+        let totalCPU = 0;
         
-        for (var i = 7; i < lines.length; ++i) {
-            var procData = lines[i].split(/\s+/);
+        for (let i = 7; i < lines.length; ++i) {
+            const procData = lines[i].split(/\s+/);
             while (procData[0] === '') procData.shift();                
-            var idx = lines[i].indexOf(procData[cmdCol]);
+            const idx = lines[i].indexOf(procData[cmdCol]);
             procData[cmdCol] = lines[i].substr(idx);    // adding back the parameters for the 'command' column
-            var obj = {};
+            const obj = {};
             procData.forEach( (val, idx) => { obj[columns[idx]] = val; });
             result.push(obj);
             
@@ -87,10 +88,10 @@
         }
 
         // memory
-        var mems = lines[3].split(/\s+/);
+        const mems = lines[3].split(/\s+/);
         
         // uptime
-        var upt = lines[0].match(uptimeRE);
+        const upt = lines[0].match(uptimeRE);
 
         result.$_idField = 'PID';
         

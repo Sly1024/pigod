@@ -1,10 +1,11 @@
+"use strict";
 (function (exports) {
 
     exports.init = function init(api) {
-        var child_process = require('child_process');
-        var commandsById = {};
+        const child_process = require('child_process');
+        const commandsById = {};
         /** commands **/
-        var allCommands = [
+        const allCommands = [
             { id: 'kodi', name: 'Kodi', command: 'su -c startkodi - pi' },
             { id: 'chmusb', name: 'Chmod Usb', command: 'chmod -R a+w /mnt/usb/' },
             { id: 'chmpigod', name: 'Chmod PiGod src', command: 'chmod -R a+w /home/pi/pigod/src/' },
