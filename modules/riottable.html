@@ -6,7 +6,7 @@
             <tr>
                 <th each={ col in cols } class="column-{col.key} { highlight: parent.sortedBy == col.key }">
                     <a href="" onclick={ parent.sortBy(col.key) }>{col.header || col.key}</a>
-                </td>
+                </th>
             </tr>
         </thead>
         <tbody onclick={ tableClicked }>

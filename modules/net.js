@@ -3,7 +3,7 @@
 
     exports.init = function init(api) {
         api.registerDataStream('nettop', 
-            api.createProcessStream('nettop', 'nethogs', ['-d2'], processData)
+            api.createProcessStream('nettop', 'nethogs', ['-d2'], processData, 50)
         );
     }
 
