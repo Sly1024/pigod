@@ -17,9 +17,11 @@ module.exports = function (readFile, readdir, serverApi) {
         });
     }
     
-    const riotTagsPromise = readdir(moduleDir).then(function (files) {    
-        console.log(yellow('Loading modules ...'));
-        files.filter(f => /\.js$/.test(f)).forEach((fileName) => {
+    const riotTagsPromise = readdir(moduleDir).then((files) => {    
+        
+		console.log(yellow('Loading modules ...'));
+        
+		files.filter(f => /\.js$/.test(f)).forEach((fileName) => {
             console.log(fileName);
             try {
                 const module = require(moduleDir + fileName);
@@ -35,10 +37,9 @@ module.exports = function (readFile, readdir, serverApi) {
         return Promise.all(files.filter(f => /\.html$/.test(f)).map((fileName) => loadTag(moduleDir + fileName)))
             .then(compiled_tags => compiled_tags.join('\n'));
         
-    }).catch(err => console.log('Error loading modules ' + err));
+    });
 
-
-    riotTagsPromise.then(_ => console.log(yellow('done.')));
+    riotTagsPromise.then(_ => console.log(yellow('done.')), err => console.log('Error loading modules ' + err));
     
     return riotTagsPromise;
 };
