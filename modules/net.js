@@ -3,60 +3,55 @@
 
     exports.init = function init(api) {
         api.registerDataStream('nettop', 
-            api.createProcessStream('nettop', 'nethogs', ['-d2'], processData, 50)
+            api.createProcessStream('nettop', 'nethogs', ['-t'], processData, 50)
         );
     }
+	
+	const passwdRE = /([^:]+):x:(\d+):/;
+	
+	const userId2Name = require('fs').readFileSync('/etc/passwd', 'utf8').split('\n').reduce( (map, line) => {
+		const match = passwdRE.exec(line);
+		if (match && match.length === 3) {
+			map[match[2]] = match[1];
+		}
+		return map;
+	}, {});
 
-    const beginRE = /^\s*NetHogs/;
-    let collected = '';
+	const lineRE = /(.*)\/(\d+)\/(\d+)\s+([0-9.]+)\s+([0-9.]+)/;
     
     function processData(data) {
-        data = data.replace(/\[4;1H/g, '\n').replace(/\[[\d;]*[A-Za-z]|\(B|\u001b/g, ' ');
-        // collecting chunks
-        if (beginRE.test(data)) {
-            collected = '';
-            data = data.replace(/^\s*/, '');
-        }
-        collected += data;
+        const lines = data.split('\n');
 
-        
-        const lines = collected.split('\n');
-
-        if (lines.length < 3) return;
-        
         const result = [];
-        const columns = lines[2].split(/\s+/);
-        while (columns[0] === '') columns.shift();
         
         let totalSent = 0, totalRecv = 0;
         
-        for (let i = 3; i < lines.length; ++i) {
-            const procData = lines[i].split(/\s+/);    
-            while (procData[0] === '') procData.shift();
-            
-            if (procData.length == 0 || procData[0] == 'TOTAL') continue;
-            
-            let idx = procData.indexOf('KB/sec');
-            if (idx == -1) continue;
-            while (idx < 6) { procData.splice(idx-2, 0, ''); ++idx; }
-            while (idx > 6) { procData[idx-5] += ' ' + procData.splice(idx-4, 1); --idx; }
-            
-            if (!Number(procData[4]) && !Number(procData[5])) continue;
-            
+        for (let i = 0; i < lines.length; ++i) {
+            const procData = lineRE.exec(lines[i]);
+			
+			if (!procData || procData.length !== 6) continue;
+
             const sent = Number(procData[4]);
             const recv = Number(procData[5]);
-            
-            if (!isNaN(sent)) totalSent += sent;
-            if (!isNaN(recv)) totalRecv += recv;
-            
-            //procData[4] += ' K/s';
-            //procData[5] += ' K/s';
 
-            const obj = {};
-            procData.forEach( (val, idx) => { obj[columns[idx]] = val; });
+			if (isNaN(sent) || isNaN(recv)) continue;
+			
+            const obj = {
+				program:procData[1],
+				PID:	procData[2],
+				user:	userId2Name[procData[3]],
+				sent:	sent,
+				recv:	recv
+			};
+
+            totalSent += sent;
+            totalRecv += recv;
+            
             result.push(obj);
         }
         
+		if (result.length === 0) return;
+		
         result.$_idField = 'PID';
         
         return {

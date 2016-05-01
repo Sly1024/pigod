@@ -9,7 +9,7 @@
         );
         
         api.registerDataStream('top', 
-            api.createProcessStream('top', 'top', ['-bid2'], processTopData)
+            api.createProcessStream('top', 'top', ['-bid1'], processTopData)
         );
         
         api.pubsub.subscribe('pidkill', function (data) {

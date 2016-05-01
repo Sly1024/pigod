@@ -3,7 +3,7 @@
 
     exports.init = function init(api) {
         api.registerDataStream('iotop', 
-            api.createProcessStream('iotop', 'iotop', ['-bod2'], processData)
+            api.createProcessStream('iotop', 'iotop', ['-bod1'], processData)
         );
     }
     
