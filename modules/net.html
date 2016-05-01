@@ -10,7 +10,7 @@
             <canvas name="io_chart" width="420" height="90" class="smoothchart"></canvas>
 		</yield>
 		<yield to="body">
-            <riot-table rows={processes} context={model} >
+            <riot-table rows={processes} context={model} defaultsort="^sent">
                 <riot-col key="user" header="User" tpl={'<div class="truncate">{row.user}</div>'} />
                 <riot-col key="PID" header="PID" cls="text-right" 
                     tpl={'<a href="#">{row.PID}</a>'} 

@@ -8,7 +8,7 @@
 			<canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
 		</yield>
 		<yield to="body">
-            <riot-table rows={processes} context={model} >
+            <riot-table rows={processes} context={model} defaultsort="^WRITE">
                 <riot-col key="USER" header="User" />
                 <riot-col key="TID" header="TID" cls="text-right"/>
                 <riot-col key="READ" header="Read" cls="text-right disk read highlight"/>

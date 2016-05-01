@@ -4,7 +4,7 @@
 			Services ({last_udpated})
 		</yield>
 		<yield to="body">
-            <riot-table stretchcol="name" rows={services} context={model} >
+            <riot-table stretchcol="name" rows={services} context={model} defaultsort="name">
                 <riot-col key="stat" header="Stat" cls="text-center"
                     tpl={'<img src="images/{status2Icon[row.stat]}.png" width="16" height="16">'}/>
                 <riot-col key="name" header="Name" />

@@ -4,7 +4,7 @@
 			Disk Usage ({last_udpated})
 		</yield>
 		<yield to="body">
-			<riot-table rows={rows} >
+			<riot-table rows={rows} defaultsort="^Use">
                 <riot-col key="Filesystem" />
                 <riot-col key="Size" cls="text-right"/>
                 <riot-col key="Used" cls="text-right"/>
