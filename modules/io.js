@@ -1,14 +1,15 @@
+"use strict";
 (function (exports) {
 
     exports.init = function init(api) {
         api.registerDataStream('iotop', 
-            api.createProcessStream('iotop', 'iotop', ['-bod2'], processData)
+            api.createProcessStream('iotop', 'iotop', ['-bod1'], processData)
         );
     }
     
-    var units = { 'B/s': 1, 'K/s': 1000, 'M/s': 1000000 };
-    var collected = '';
-    var beginRE = /^\s*Total DISK READ/;
+    const units = { 'B/s': 1, 'K/s': 1000, 'M/s': 1000000 };
+    let collected = '';
+    const beginRE = /^\s*Total DISK READ/;
 
     function processData(data) {
         // collecting chunks
@@ -19,36 +20,36 @@
         collected += data;
 
         // processing
-        var lines = collected.split('\n');
+        const lines = collected.split('\n');
         
-        var result = [];
-        var columns = lines[1].split(/\s+/);
+        const result = [];
+        const columns = lines[1].split(/\s+/);
         while (columns[0] === '') columns.shift();
         
         // 
-        var ridx = columns.indexOf('READ');
+        const ridx = columns.indexOf('READ');
         columns[ridx-1] = 'READ';
         columns[ridx] = 'READ_UNIT';
 
-        var widx = columns.indexOf('WRITE');
+        const widx = columns.indexOf('WRITE');
         columns[widx-1] = 'WRITE';
         columns[widx] = 'WRITE_UNIT';
         
-        var cmdCol = columns.indexOf('COMMAND');
+        const cmdCol = columns.indexOf('COMMAND');
         
-        for (var i = 2; i < lines.length-1; ++i) {
-            var procData = lines[i].replace(/ %/g, '%').split(/\s+/);    // fixing '0.00 %' values into one column                
+        for (let i = 2; i < lines.length-1; ++i) {
+            const procData = lines[i].replace(/ %/g, '%').split(/\s+/);    // fixing '0.00 %' values into one column                
             while (procData[0] === '') procData.shift();
-            var idx = lines[i].indexOf(procData[cmdCol]);
+            const idx = lines[i].indexOf(procData[cmdCol]);
             procData[cmdCol] = lines[i].substr(idx);    // adding back the parameters for the 'command' column
-            var obj = {};
+            const obj = {};
             procData.forEach( (val, idx) => { obj[columns[idx]] = val; });
             obj.READ += ' ' + obj.READ_UNIT;
             obj.WRITE += ' ' + obj.WRITE_UNIT;
             result.push(obj);
         }
         
-        var total = lines[0].split(/\s+/);        
+        const total = lines[0].split(/\s+/);        
                 
         result.$_idField = 'TID';
                 

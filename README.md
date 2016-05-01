@@ -59,7 +59,7 @@ And to automatically start forever as a service, you can use [forever-service](h
 ```npm install forever-service -g```
 
 I created a script that installs pigod as a service named 'pigodsvc': [install-forever-service.sh](install-forever-service.sh)<br/>
-This watches the folder for file changes except the `static` folder which contains the client-side code.
+This watches the folder for file changes ~~except the `static` folder which contains the client-side code~~.
 
 Note: the service also runs as root!
 
@@ -89,7 +89,7 @@ This is not in priority order!
  * [x] wsPubSubClient and wsPubSubServer has a lot of common code - needs refactoring
  * [x] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
  * [x] Factor out HTML table generation ~~(maybe?)~~ and sorting functionality.
- * [ ] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
+ * [x] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
  * [ ] Add crosshair on mouseover to smoothie charts.

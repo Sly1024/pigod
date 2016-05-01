@@ -1,7 +1,8 @@
+"use strict";
 (function (exports) {
     
     exports.init = function init(api) {
-        var child_process = require('child_process');
+        const child_process = require('child_process');
         
         api.registerDataStream('services', 
             api.createProcessStream('services', './servicesstream.sh', [], processData, 1000, true)
@@ -13,9 +14,9 @@
             }
         });
         
-        var svcStatRE = /^ \[ ([-+\?]) \]  (.*)$/;
-        var services = [];
-        var servicesByName = {};
+        const svcStatRE = /^ \[ ([-+\?]) \]  (.*)$/;
+        const services = [];
+        const servicesByName = {};
 
         services.$_idField = 'name';
         
