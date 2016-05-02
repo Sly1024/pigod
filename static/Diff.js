@@ -5,9 +5,13 @@
         return obj2str.call(arg) === '[object Object]';
     }
 
-    function isArray(arg) {
-        return Array.isArray ? Array.isArray(arg) : obj2str.call(arg) === '[object Object]';
-    }
+    var isArray = Array.isArray || function (arg) {
+        return obj2str.call(arg) === '[object Array]';
+    };
+    
+    var getNow = Date.now || function () {
+        return new Date().getTime();
+    };
 
     var NODIFF_OBJ = {};  // a special object representing "No Difference" 
     
@@ -98,6 +102,8 @@
             function (item) { return item; };    // id is the reference
         
         var tempItems = source.$_tmpArr || [];
+        var tempExpire = tempItems.$_expire || (tempItems.$_expire = []);
+        var now = getNow();
         
         var indexOf = function (arr, item, startIdx) {
             var id = idFunc(item);
@@ -108,14 +114,17 @@
         var targetHas = getHasItem(trgt, indexOf);                
         var srcHas = getHasItem(src, indexOf);        
         
+        // remove
         var remove = [];
         for (var i = src.length-1; i >= 0; --i) {
             if (!targetHas(src[i])) {
                 remove.push(i);
                 tempItems.push(src.splice(i, 1)[0]);
+                tempExpire.push(now + Diff.cacheTimeout);
             }
         }
-                    
+              
+        // insert
         var insPos = trgt.length - src.length;    // number of new items
         var insert = new Array(insPos);
         for (var i = trgt.length-1; i >= 0; --i) {
@@ -128,6 +137,7 @@
             var item = ins[1];
             var tmpIdx = indexOf(tempItems, item);
             if (tmpIdx >= 0) {
+                tempExpire.splice(tmpIdx, 1);
                 var tmpItem = tempItems.splice(tmpIdx, 1)[0];
                 ins[0] = ~ins[0];
                 ins[1] = tmpIdx;
@@ -135,6 +145,7 @@
             }
         });
         
+        // move
         var move = [];
         for (var i = 0; i < trgt.length; ++i) {
             if (idFunc(src[i]) === idFunc(trgt[i])) {
@@ -147,14 +158,25 @@
             }
         }
         
+        // cache timeout
+        var discard = [];
+        for (var i = tempExpire.length-1; i >= 0; --i) {
+            if (tempExpire[i] < now) {
+                discard.push(i);
+                tempExpire.splice(i, 1);
+                tempItems.splice(i, 1);
+            }
+        }
+        
         if (tempItems.length) {
             target.$_tmpArr = tempItems;
             target.toJSON = tmpArrToJSON;
         }
         
-        return remove.length + move.length + insert.length === 0 ? NODIFF_OBJ : {
-            $_arrDiff: [remove, move, insert]
-        };
+        var result = [move, remove, insert, discard];
+        while (result.length && result[result.length-1].length === 0) result.pop();
+        
+        return result.length === 0 ? NODIFF_OBJ : { $_arrDiff: result };
     }
     
     /** ---- applying the diff ----- */
@@ -191,11 +213,16 @@
         
         var tempItems = source.$_tmpArr || [];
         
+        var move = arrDiff[0];
+        var remove = arrDiff[1];
+        var insert = arrDiff[2];
+        var discard = arrDiff[3];
+        
         // remove
-        arrDiff[0].forEach(function (idx) { tempItems.push(source.splice(idx, 1)[0]); });
+        if (remove) remove.forEach(function (idx) { tempItems.push(source.splice(idx, 1)[0]); });
         
         // move
-        arrDiff[1].forEach(function (move) {
+        if (move) move.forEach(function (move) {
             var idx = move[0];
             if (idx < 0) {
                 source[~idx] = applyDiff(source[~idx], move[1]);
@@ -207,22 +234,25 @@
         });
         
         // insert
-        arrDiff[2].forEach(function (insert) {
-            var toIdx = insert[0];
+        if (insert) insert.forEach(function (ins) {
+            var toIdx = ins[0];
             var what;
             
             if (toIdx < 0) {
                 toIdx = ~toIdx;
-                var fromIdx = insert[1];
+                var fromIdx = ins[1];
                 if (fromIdx >= tempItems.length) { console.log('ooops', fromIdx, tempItems.length); }
                 what = tempItems.splice(fromIdx, 1)[0];
-                if (insert.length > 2) what = applyDiff(what, insert[2]);
+                if (ins.length > 2) what = applyDiff(what, ins[2]);
             } else {
-                what = insert[1];
+                what = ins[1];
             }
             
             source.splice(toIdx, 0, what);
         });
+        
+        // discard
+        if (discard) discard.forEach(function (idx) { tempItems.splice(idx, 1); });
         
         if (tempItems.length) source.$_tmpArr = tempItems;
         
@@ -247,7 +277,8 @@
     var Diff = {
         NODIFF_OBJ: NODIFF_OBJ,
         getDiff: getDiff,
-        applyDiff: applyDiff
+        applyDiff: applyDiff,
+        cacheTimeout: 60000
     };
     
     if (typeof module !== 'undefined') module.exports = Diff;
