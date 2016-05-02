@@ -1,13 +1,13 @@
 <io-panel>
     <pigod-panel>
-		<yield to="title">
-			Disk IO (<span class="io_read">read</span>/<span class="io_write">write</span>) &nbsp;
-			<span class="pull-right"><span class="io_read">{ io_read }</span> / <span class="io_write">{ io_write }</span></span>
-		</yield>
+        <yield to="title">
+            Disk IO (<span class="io_read">read</span>/<span class="io_write">write</span>) &nbsp;
+            <span class="pull-right"><span class="io_read">{ io_read }</span> / <span class="io_write">{ io_write }</span></span>
+        </yield>
         <yield to="outside-body">
-			<canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
-		</yield>
-		<yield to="body">
+            <canvas name="disk_chart" width="420" height="90" class="smoothchart"></canvas>
+        </yield>
+        <yield to="body">
             <riot-table rows={processes} context={model} defaultsort="^WRITE">
                 <riot-col key="USER" header="User" />
                 <riot-col key="TID" header="TID" cls="text-right"/>
@@ -16,7 +16,7 @@
                 <riot-col key="IO" header="IO%" />
                 <riot-col key="COMMAND" header="Command" tpl={'<div class="truncate">{row.COMMAND}</div>'} />
             </riot-table>
-		</yield>
+        </yield>
     </pigod-panel>
     
     <style scoped>

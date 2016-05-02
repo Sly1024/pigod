@@ -1,7 +1,7 @@
 <cpu-panel>
     <pigod-panel>
-		<yield to="title">
-			CPU
+        <yield to="title">
+            CPU
             <span style="font-size: 14px;">
                 <span class="cpu-percent">{ cpu_perc }%</span>
                 <span class="temperature">{ cpu_temp }&deg;C</span>
@@ -12,11 +12,11 @@
                     <span class="free_mem" title="Used">{ used_mem }</span>/<span class="used_mem" title="Free">{ free_mem }</span> MB
                 </span>
             </span>
-		</yield>
+        </yield>
         <yield to="outside-body">
-			<canvas name="usage_chart" width="420" height="45" class="smoothchart"></canvas>
-			<canvas name="temp_chart" width="420" height="45" class="smoothchart"></canvas>
-		</yield>
+            <canvas name="usage_chart" width="420" height="45" class="smoothchart"></canvas>
+            <canvas name="temp_chart" width="420" height="45" class="smoothchart"></canvas>
+        </yield>
         <yield to="body">
             <riot-table rows={processes} context={model} defaultsort="^CPU">
                 <riot-col key="USER" header="User" />
@@ -118,7 +118,7 @@
                 yMinFormatter: () => '',
                 yMaxFormatter: (max, prec) => parseFloat(cpuSeries.maxValue).toFixed(prec) + '%',
             }, { lineWidth:1.2, strokeStyle:'#3DFFA8', fillStyle:'rgba(179,254,165,0.36)' });
-			
+            
             stretchCanvas(this.usage_chart);
             
             setupChart(this.temp_chart, tempSeries, {
@@ -128,8 +128,8 @@
             }, { lineWidth:1.2, strokeStyle:'#008cff', fillStyle:'rgba(27,134,252,0.36)' });
             
             stretchCanvas(this.temp_chart);
-			
-			
+            
+            
             /*addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - ' + Math.floor(values[1] * 10) / 10 + '% (' + values[0] + '\u2103)'
             );*/
