@@ -20,6 +20,7 @@
     };
     
     proto.stopChannel = function(channel) {
+        this.states[channel] = null;
         this.send({ action: 'unsubscribe', channel: channel } );
     };
     
@@ -62,7 +63,7 @@
                 me.ignorePublish = true;
                 var applied = Diff.applyDiff(me.states[channel], data.payload);
                 me.states[channel] = applied;
-                me.pubsub.publish(data.channel, applied);
+                me.pubsub.publish(channel, applied);
                 me.ignorePublish = false;
             } else {
                 throw new Error('[wsPubSubClient] unidentified msg ' + msg);
