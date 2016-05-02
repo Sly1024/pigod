@@ -19,9 +19,9 @@ module.exports = function (readFile, readdir, serverApi) {
     
     const riotTagsPromise = readdir(moduleDir).then((files) => {    
         
-		console.log(yellow('Loading modules ...'));
+        console.log(yellow('Loading modules ...'));
         
-		files.filter(f => /\.js$/.test(f)).forEach((fileName) => {
+        files.filter(f => /\.js$/.test(f)).forEach((fileName) => {
             console.log(fileName);
             try {
                 const module = require(moduleDir + fileName);

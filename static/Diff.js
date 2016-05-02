@@ -60,31 +60,12 @@
         
         return diff || NODIFF_OBJ;
     }
-    
-    function getIndexOf(item, array, idFunc, startIdx) {
-        var id = idFunc(item);
-        for (var i = startIdx || 0; i < array.length; ++i) {
-            if (idFunc(array[i]) == id) return i;
-        }
-        return -1;
-    }
 
-    function getHasFuncField(array, idField) {
-        var hasId = null;
-        return function (item) { 
-            if (!hasId) {
-                hasId = {};
-                array.forEach(function (item) { hasId[item[idField]] = (hasId[item[idField]] || 0) + 1; });
-            }
-            return hasId[item[idField]]-- > 0;
-        };
-    }
-
-    function getHasFuncRef(array, idFunc) {
+    function getHasItem(array, indexOf) {
         var copy = null;
         return function (item) { 
             copy = copy || array.slice();
-            var idx = idFunc ? getIndexOf(item, copy, idFunc) : copy.indexOf(item);
+            var idx = indexOf(copy, item);
             if (idx >= 0) {
                 copy.splice(idx, 1);
                 return true;
@@ -92,47 +73,50 @@
             return false;
         };
     }
+    
+    function pushDiff(source, target, arr) {
+        var diff = getDiff(source, target);
+        if (diff !== NODIFF_OBJ) arr.push(diff);
+        return arr;
+    }
+    
+    function tmpArrToJSON() {
+        return {
+            $_arr: this.slice(),
+            $_tmpArr: this.$_tmpArr
+        };
+    }
+    
 
     function arrayDiff(source, target) {
         var src = source.slice();  // clone the source array
         var trgt = target.slice(); // clone target 
 
-        var targetHas, srcHas, same, getIdxInSrc;
         var idField = target.$_idField;
-        var idFunc = target.$_idFunc;
+        var idFunc = target.$_idFunc ||     // use idFunc if provided
+            idField && function (item) { return item[idField]; } ||     // generate idFunc from idField
+            function (item) { return item; };    // id is the reference
         
-        if (idField) {  // items are identified by a field
-            targetHas = getHasFuncField(target, idField);                
-            srcHas = getHasFuncField(src, idField);
-            same = function (a, b) { return a[idField] === b[idField]; };
-            getIdxInSrc = function (item, startIdx) {
-                var itemID = item[idField];
-                for (var i = startIdx; i < src.length; ++i) if (src[i][idField] === itemID) return i;
-                return -1;
-            };
-        } else if (idFunc) {
-            targetHas = getHasFuncRef(target, idFunc);                
-            srcHas = getHasFuncRef(src, idFunc);
-            same = function (a, b) { return idFunc(a) == idFunc(b); };
-            getIdxInSrc = function (item, startIdx) {
-                return getIndexOf(item, src, idFunc, startIdx);
-            };            
-        } else {    // identity is the reference
-            targetHas = getHasFuncRef(target);
-            srcHas = getHasFuncRef(src);
-            same = function (a, b) { return a === b; };
-            getIdxInSrc = [].indexOf.bind(src);
-        }
+        var tempItems = source.$_tmpArr || [];
+        
+        var indexOf = function (arr, item, startIdx) {
+            var id = idFunc(item);
+            for (var i = startIdx || 0; i < arr.length; ++i) if (idFunc(arr[i]) == id) return i;
+            return -1;
+        };
+        
+        var targetHas = getHasItem(trgt, indexOf);                
+        var srcHas = getHasItem(src, indexOf);        
         
         var remove = [];
         for (var i = src.length-1; i >= 0; --i) {
             if (!targetHas(src[i])) {
                 remove.push(i);
-                src.splice(i, 1);
+                tempItems.push(src.splice(i, 1)[0]);
             }
         }
                     
-        var insPos = target.length - src.length;    // number of new items
+        var insPos = trgt.length - src.length;    // number of new items
         var insert = new Array(insPos);
         for (var i = trgt.length-1; i >= 0; --i) {
             if (!srcHas(trgt[i])) {
@@ -140,20 +124,32 @@
                 trgt.splice(i, 1);
             }
         }
+        insert.forEach(function (ins) {
+            var item = ins[1];
+            var tmpIdx = indexOf(tempItems, item);
+            if (tmpIdx >= 0) {
+                var tmpItem = tempItems.splice(tmpIdx, 1)[0];
+                ins[0] = ~ins[0];
+                ins[1] = tmpIdx;
+                pushDiff(tmpItem, item, ins);
+            }
+        });
         
         var move = [];
         for (var i = 0; i < trgt.length; ++i) {
-            if (same(src[i], trgt[i])) {
+            if (idFunc(src[i]) === idFunc(trgt[i])) {
                 var diff = getDiff(src[i], trgt[i]);
-                if (diff !== NODIFF_OBJ) move.push([i, i, diff]);
+                if (diff !== NODIFF_OBJ) move.push([~i, diff]);
             } else {
-                var idx = getIdxInSrc(trgt[i], i+1);
-                var moveArr = [idx, i];
-                var diff = getDiff(src[idx], trgt[i]);
-                if (diff !== NODIFF_OBJ) moveArr.push(diff);
-                move.push(moveArr);
+                var idx = indexOf(src, trgt[i], i+1);
+                move.push(pushDiff(src[idx], trgt[i], [idx, i]));
                 src.splice(i, 0, src.splice(idx, 1)[0]);
             }
+        }
+        
+        if (tempItems.length) {
+            target.$_tmpArr = tempItems;
+            target.toJSON = tmpArrToJSON;
         }
         
         return remove.length + move.length + insert.length === 0 ? NODIFF_OBJ : {
@@ -164,7 +160,7 @@
     /** ---- applying the diff ----- */
     
     function applyDiff(source, diff) {
-        //if (source == null) return diff;  - No need
+        if (source == null) return decodeArrDiff(diff);
         
         if (isObject(diff)) {
             if (isArray(source) && diff.$_arrDiff) {
@@ -193,22 +189,59 @@
     function applyArrDiff(source, diff) {
         var arrDiff = diff.$_arrDiff;
         
+        var tempItems = source.$_tmpArr || [];
+        
         // remove
-        arrDiff[0].forEach(function (idx) { source.splice(idx, 1); });
+        arrDiff[0].forEach(function (idx) { tempItems.push(source.splice(idx, 1)[0]); });
         
         // move
         arrDiff[1].forEach(function (move) {
-            var item = source.splice(move[0], 1)[0];
-            if (move.length > 2) item = applyDiff(item, move[2]);
-            source.splice(move[1], 0, item);
+            var idx = move[0];
+            if (idx < 0) {
+                source[~idx] = applyDiff(source[~idx], move[1]);
+            } else {
+                var item = source.splice(idx, 1)[0];
+                if (move.length > 2) item = applyDiff(item, move[2]);
+                source.splice(move[1], 0, item);
+            }
         });
         
         // insert
         arrDiff[2].forEach(function (insert) {
-            source.splice(insert[0], 0, insert[1]);
+            var toIdx = insert[0];
+            var what;
+            
+            if (toIdx < 0) {
+                toIdx = ~toIdx;
+                var fromIdx = insert[1];
+                if (fromIdx >= tempItems.length) { console.log('ooops', fromIdx, tempItems.length); }
+                what = tempItems.splice(fromIdx, 1)[0];
+                if (insert.length > 2) what = applyDiff(what, insert[2]);
+            } else {
+                what = insert[1];
+            }
+            
+            source.splice(toIdx, 0, what);
         });
         
+        if (tempItems.length) source.$_tmpArr = tempItems;
+        
         return source;
+    }
+    
+    function decodeArrDiff(obj) {
+        if (typeof obj === 'object') {
+            var arr;
+            if ((arr = obj.$_arr) && obj.$_tmpArr) {
+                arr.$_tmpArr = obj.$_tmpArr;
+                obj = arr;
+                console.log('decoded $tmpArr with ' + arr.$_tmpArr.length + ' items');
+            }
+            for (var key in obj) {
+                obj[key] = decodeArrDiff(obj[key]);
+            }
+        } 
+        return obj;
     }
         
     var Diff = {

@@ -69,6 +69,16 @@
         this.on('mount', () => {
             var rcols = this.tags['riot-col'];
             this.cols = rcols && rcols.map(colTag => colTag.opts) || [];
+            
+            var defsort = opts.defaultsort;
+            if (defsort) {
+                if (defsort.charAt(0) === '^') {
+                    this.sortedBy = defsort.substr(1);
+                    this.sortReversed = true;
+                } else {
+                    this.sortedBy = defsort;
+                }
+            }
         });
         
         this.on('update', () => {

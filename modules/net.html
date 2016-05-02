@@ -1,16 +1,16 @@
 <net-panel>
     <pigod-panel>
-		<yield to="title">
-			Network (<span class="net_read">receive</span>/<span class="net_write">send</span>) &nbsp;
-			<span class="pull-right">
-				<span class="net_read">{ tot_recv } K/s</span> / <span class="net_write">{ tot_sent } K/s</span>
-			</span>
-		</yield>
+        <yield to="title">
+            Network (<span class="net_read">receive</span>/<span class="net_write">send</span>) &nbsp;
+            <span class="pull-right">
+                <span class="net_read">{ tot_recv } K/s</span> / <span class="net_write">{ tot_sent } K/s</span>
+            </span>
+        </yield>
         <yield to="outside-body">
             <canvas name="io_chart" width="420" height="90" class="smoothchart"></canvas>
-		</yield>
-		<yield to="body">
-            <riot-table rows={processes} context={model} >
+        </yield>
+        <yield to="body">
+            <riot-table rows={processes} context={model} defaultsort="^sent">
                 <riot-col key="user" header="User" tpl={'<div class="truncate">{row.user}</div>'} />
                 <riot-col key="PID" header="PID" cls="text-right" 
                     tpl={'<a href="#">{row.PID}</a>'} 
@@ -20,7 +20,7 @@
                 <riot-col key="program" header="Command" 
                     tpl={'<div class="truncate">{row.program}</div>'} />
             </riot-table>
-		</yield>
+        </yield>
     </pigod-panel>
     
     <style scoped>
@@ -79,8 +79,8 @@
             chart.addTimeSeries(writeSeries, { lineWidth:1.2, strokeStyle:'#de6868',fillStyle:'rgba(222,104,104, 0.15)' });
             chart.streamTo(this.io_chart, 500);
             
-			stretchCanvas(this.io_chart);
-			
+            stretchCanvas(this.io_chart);
+            
             addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
                 new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s S:' + values[1].toFixed(2) + ' K/s');
         });

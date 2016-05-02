@@ -1,10 +1,10 @@
 <webcam-panel>
     <pigod-panel>
-		<yield to="title">
-			WebCam
-			<button style="float:right;" onclick={ model.refresh }>R</button>
-		</yield>
-		<yield to="body">
+        <yield to="title">
+            WebCam
+            <button style="float:right;" onclick={ model.refresh }>R</button>
+        </yield>
+        <yield to="body">
             <img name="wcimg" src="http://{window.location.hostname}:8081/?action=stream" width="465" style="-webkit-filter: brightness({model.brightness});">
             <table width="100%"><tr>
                 <td>Brightness</td>
