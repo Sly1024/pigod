@@ -1,33 +1,47 @@
 <riot-col>
 </riot-col>
 <riot-table>
-    <table class="fixed-header sortable table-striped table-sparse" data-show-columns="true">
-        <thead>
-            <tr>
-                <th each={ col in cols } class="column-{col.key} { highlight: parent.sortedBy == col.key }">
-                    <a href="" onclick={ parent.sortBy(col.key) }>{col.header || col.key}</a>
-                </th>
-            </tr>
-        </thead>
-        <tbody onclick={ tableClicked }>
-            <tr each={ row in rows }>
-                <td each={ col in parent.cols } class="column-{col.key} { [].concat(col.cls).join(' ') }">
-                    {!col.tpl ? row[col.key] : ''}
-                    <raw if={col.tpl} 
-                         content={col.tpl} 
-                         item={row}
-                         context={parent.parent.opts.context}
-                    ></raw>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <section>
+        <div class="table-scroller">
+            <table class="fixed-header sortable table-striped" data-show-columns="true">
+                <thead>
+                    <tr>
+                        <th each={ col in cols } class="column-{col.key} { highlight: parent.sortedBy == col.key }">
+                            {col.header || col.key}
+                            <div>
+                                <a href="" onclick={ parent.sortBy(col.key) }>{col.header || col.key}</a>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody onclick={ tableClicked }>
+                    <tr each={ row in rows }>
+                        <td each={ col in parent.cols } class="column-{col.key} { [].concat(col.cls).join(' ') }">
+                            {!col.tpl ? row[col.key] : ''}
+                            <raw if={col.tpl} 
+                                 content={col.tpl} 
+                                 item={row}
+                                 context={parent.parent.opts.context}
+                            ></raw>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
     <div style="display:none;">
        <yield/>
     </div>
 
     <style scoped>
-        .highlight > a {
+        :scope {
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+        }
+        .highlight a {
             color: #00BCD4;
         }
         th {
@@ -35,29 +49,41 @@
             white-space: nowrap;
         }
         td {
-            position: relative;
             white-space: nowrap;
         }
-        tr {
-            opacity: 0.999;
+
+        section {
+          position: relative;
+          padding-top: 25px;
+          height: 100%;
         }
-        table.fixed-header {
-            padding: 10px 5px 10px 10px;
-            
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-        table.fixed-header tbody {
+        .table-scroller {
             overflow-x: hidden;            
-            overflow-y: auto;            
+            overflow-y: auto;
+            height: 100%;
         }
+        table {
+            border-spacing: 5px;
+            border-collapse: separate;
+            margin-top: -9px;   
+        }
+        th {
+          height: 0;
+          line-height: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          color: transparent;
+          border: none;
+          white-space: nowrap;
+        }
+        th div{
+          position: absolute;
+          background: transparent;
+          top: 0;
+          line-height: normal;
+        }
+
+
     </style>
     
     <script type="text/es6arrow">
@@ -88,20 +114,11 @@
 
         this.on('updated', () => {
             if (this.cols) {
-                var stretchKey = this.opts.stretchcol || this.cols[this.cols.length-1].key;
-
-                this.cols.map(col => {
-                    var th = $el('th.column-'+col.key, this.root);
-                    var td = $el('td.column-'+col.key, this.root);
-                    td.style.minWidth = th.offsetWidth + 'px';
-                    if (col.key === stretchKey) td.style.width = '100%';
-                    return [th, td];
-                }).forEach(thtd => {
-                    thtd[0].style.width = thtd[1].offsetWidth + 'px';
-                });
+                var stretchKey = opts.stretchcol || this.cols[this.cols.length-1].key;
+                $el('th.column-'+stretchKey, this.root).style.width = '100%';
             }
         });
-        
+
         sortBy(what) {
             return () => {
                 if (what == this.sortedBy) {
