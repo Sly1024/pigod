@@ -100,4 +100,4 @@ This is not in priority order!
  
 Browser Support
 ---------------
-The client libraries and the compiled Javascript code should be compatible with all EcmaScript 5 browsers. I have tested it on Chrome and on Android 4 default browser.
+The client libraries and the compiled Javascript code should be compatible with all EcmaScript 5 browsers, but I use some CSS3 features, like flexbox. I have tested it on Chrome and MS Edge.
