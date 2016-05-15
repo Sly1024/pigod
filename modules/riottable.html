@@ -115,7 +115,8 @@
         this.on('updated', () => {
             if (this.cols) {
                 var stretchKey = opts.stretchcol || this.cols[this.cols.length-1].key;
-                $el('th.column-'+stretchKey, this.root).style.width = '100%';
+                var el = $el('th.column-'+stretchKey, this.root);
+                if (el) el.style.width = '100%';
             }
         });
 
@@ -145,6 +146,7 @@
         
         parseNum(str) {
             var val = parseFloat(str);
+            if (isNaN(val)) return str;
             var sc = scales[str[str.length-1]];
             return sc ? val * sc : val;
         }

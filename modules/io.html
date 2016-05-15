@@ -66,6 +66,7 @@
                     fontSize:14,
                     precision:1
                 },
+                tooltip: true,
                 timestampFormatter:SmoothieChart.timeFormatter
             });
 
@@ -74,9 +75,6 @@
             chart.streamTo(this.disk_chart, 500);
             
             stretchCanvas(this.disk_chart);
-            
-            addTooltipToChart(chart,  (xt, values) => (values[0] === null || values[1] === null) ? '' : 
-                new Date(xt).toISOString().substr(11,8) + ' - R:' + values[0].toFixed(2) + ' K/s W:' + values[1].toFixed(2) + ' K/s');
         });
         
         start() {

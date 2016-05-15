@@ -103,6 +103,7 @@
                 fontSize:14,
                 precision:1
             },
+            tooltip: true,
             timestampFormatter:SmoothieChart.timeFormatter
         };
         
@@ -116,23 +117,18 @@
             setupChart(this.usage_chart, cpuSeries, {
                 minValue: 0,
                 yMinFormatter: () => '',
-                yMaxFormatter: (max, prec) => parseFloat(cpuSeries.maxValue).toFixed(prec) + '%',
-            }, { lineWidth:1.2, strokeStyle:'#3DFFA8', fillStyle:'rgba(179,254,165,0.36)' });
+                yMaxFormatter: (max, prec) => parseFloat(max).toFixed(prec) + '%',
+            }, { lineWidth:1.2, strokeStyle:'#30CE87', fillStyle:'rgba(161,228,148,0.36)' });
             
             stretchCanvas(this.usage_chart);
             
             setupChart(this.temp_chart, tempSeries, {
                 minValueScale:1.05,
-                yMinFormatter: (min, prec) => parseFloat(tempSeries.minValue).toFixed(prec) + '\u00b0C',
-                yMaxFormatter: (max, prec) => parseFloat(tempSeries.maxValue).toFixed(prec) + '\u00b0C',
+                yMinFormatter: (min, prec) => parseFloat(min).toFixed(prec) + '\u00b0C',
+                yMaxFormatter: (max, prec) => parseFloat(max).toFixed(prec) + '\u00b0C',
             }, { lineWidth:1.2, strokeStyle:'#008cff', fillStyle:'rgba(27,134,252,0.36)' });
             
             stretchCanvas(this.temp_chart);
-            
-            
-            /*addTooltipToChart(chart, (xt, values) => (values[0] === null || values[1] === null) ? '' : 
-                new Date(xt).toISOString().substr(11,8) + ' - ' + Math.floor(values[1] * 10) / 10 + '% (' + values[0] + '\u2103)'
-            );*/
         });
         
         start() {

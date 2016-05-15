@@ -49,7 +49,7 @@
     </script>
 
     <script type="text/javascript" src="sortable.js"></script>
-    <script type="text/javascript" src="/modules/smoothie/smoothie.js"></script>
+    <script type="text/javascript" src="smoothie.js"></script>
     
     <script type="text/javascript" src="/modules/riot/riot.js"></script>
     <script type="text/javascript" src="PubSub.js"></script>
@@ -79,7 +79,14 @@
             float: right;
             margin: 5px;
         }
-
+        .smoothie-chart-tooltip {
+            border: 1px solid darkgrey;
+            background: #fff;
+            pointer-events: none;
+            padding: 0 4px;
+            border-radius: 4px;
+            box-shadow: 3px 3px 5px #888888;
+        }
     </style>
     <script type="text/javascript">
     
@@ -129,28 +136,6 @@
             if (canv.width != canv.parentNode.clientWidth) canv.width = canv.parentNode.clientWidth;
         }
         
-        function addTooltipToChart(chart, ttipFn) {
-        /*
-            var jcanv = $el(chart.canvas);
-            jcanv.mouseout(function () { jcanv.prop('title', ''); });
-            
-            jcanv.mousemove(function (event) {
-                var xpx = event.offsetX - jcanv.width();
-                var xt = Date.now() + xpx * chart.options.millisPerPixel;
-                
-                //chart.seriesSet[i].timeSeries.data[j][0..1]
-                var values = chart.seriesSet.map(function (series) {
-                    var data = series && series.timeSeries && series.timeSeries.data;
-                    if (!data) return null;
-                    var i = 0;
-                    while (i < data.length && data[i][0] < xt) ++i;
-                    i--;
-                    return i >= 0 && i < data.length ? data[i][1] : null;
-                });
-                jcanv.prop('title', ttipFn(xt, values));
-            });     
-        */
-        }
     </script>
     
   </head>
