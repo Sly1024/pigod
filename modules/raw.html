@@ -5,6 +5,8 @@
         var evalWith = 'with (ctx) with (this._parent) ';
 
         this.on('update', () => {
+            if (!this.opts.content) return;
+            
             this.handlers = {};
 
             this.root.innerHTML = this.opts.content.

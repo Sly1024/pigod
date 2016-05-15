@@ -7,7 +7,7 @@
     "basic-auth-connect": "1.0.0",
     "bootstrap": "^3.3.4",
     "express": "^4.12.4",
-    "riot": "^2.3.12",
+    "riot": "^2.4.0",
     "smoothie": "^1.27.0",
     "ws": "^1.0.0"
   },

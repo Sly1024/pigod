@@ -90,9 +90,9 @@ This is not in priority order!
  * [x] Add SOW (state of the world) and delta updates to wsPubSub - see [issue #1](https://github.com/Sly1024/pigod/issues/1)
  * [x] Factor out HTML table generation ~~(maybe?)~~ and sorting functionality.
  * [x] Build (concatenate + minify) all client-side libs (and the compiled riot tags) into a single file.
+ * [x] Add crosshair on mouseover to smoothie charts.
  * [ ] Implement monitoring modules (CPU) with reading from `/proc`.
  * [ ] Use HTTPS for better security.
- * [ ] Add crosshair on mouseover to smoothie charts.
  * [ ] Add ability to manage individual modules on the client - start/stop stream(s), add/remove module.
  * [ ] Persist UI layout.
  * [ ] Documentation
